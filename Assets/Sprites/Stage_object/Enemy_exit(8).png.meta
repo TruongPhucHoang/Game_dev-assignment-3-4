@@ -1,13 +1,10 @@
 fileFormatVersion: 2
-guid: 9394209aa787f324b84cba2f61d79628
+guid: 279b78285a20cc24ba459e9fcda9ed6c
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 3778657429887414876
-    second: Enemy3_dead_0
-  - first:
-      213: 465406915209143708
-    second: Enemy3_dead_1
+      213: 5703716551608453972
+    second: Enemy_exit(8)_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -155,45 +152,23 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Enemy3_dead_0
+      name: Enemy_exit(8)_0
       rect:
         serializedVersion: 2
-        x: 12
-        y: 76
-        width: 40
-        height: 42
+        x: 0
+        y: 25
+        width: 64
+        height: 13
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: c52745c89ec707430800000000000000
-      internalID: 3778657429887414876
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Enemy3_dead_1
-      rect:
-        serializedVersion: 2
-        x: 12
-        y: 12
-        width: 40
-        height: 42
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: c952d01af15757600800000000000000
-      internalID: 465406915209143708
+      spriteID: 45b432eebfba72f40800000000000000
+      internalID: 5703716551608453972
       vertices: []
       indices: 
       edges: []
@@ -202,7 +177,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: f1f840891b6d3d14f8659744dd0be42e
+    spriteID: 
     internalID: 0
     vertices: []
     indices: 
@@ -210,12 +185,9 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     spriteCustomMetadata:
-      entries:
-      - key: SpriteEditor.SliceSettings
-        value: '{"sliceOnImport":false,"gridCellCount":{"x":1.0,"y":1.0},"gridSpriteSize":{"x":64.0,"y":64.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":0,"keepEmptyRects":false,"isAlternate":false}'
+      entries: []
     nameFileIdTable:
-      Enemy3_dead_0: 3778657429887414876
-      Enemy3_dead_1: 465406915209143708
+      Enemy_exit(8)_0: 5703716551608453972
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
