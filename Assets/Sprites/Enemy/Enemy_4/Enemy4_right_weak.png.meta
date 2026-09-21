@@ -161,7 +161,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Enemy4_right_weak_0
+      name: Enemy4_right_weak_3
       rect:
         serializedVersion: 2
         x: 7
@@ -169,7 +169,7 @@ TextureImporter:
         width: 118
         height: 82
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -191,7 +191,7 @@ TextureImporter:
         width: 118
         height: 82
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -205,7 +205,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Enemy4_right_weak_2
+      name: Enemy4_right_weak_0
       rect:
         serializedVersion: 2
         x: 11
@@ -213,7 +213,7 @@ TextureImporter:
         width: 114
         height: 82
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -227,7 +227,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Enemy4_right_weak_3
+      name: Enemy4_right_weak_2
       rect:
         serializedVersion: 2
         x: 131
@@ -235,7 +235,7 @@ TextureImporter:
         width: 122
         height: 82
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -252,7 +252,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: ed4608339fc8f73479f65f1690035987
     internalID: 0
     vertices: []
     indices: 
@@ -262,10 +262,10 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Enemy4_right_weak_0: -3404481124366798889
+      Enemy4_right_weak_0: 4653168617725142361
       Enemy4_right_weak_1: 4559282001625038900
-      Enemy4_right_weak_2: 4653168617725142361
-      Enemy4_right_weak_3: -6367677412125138735
+      Enemy4_right_weak_2: -6367677412125138735
+      Enemy4_right_weak_3: -3404481124366798889
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

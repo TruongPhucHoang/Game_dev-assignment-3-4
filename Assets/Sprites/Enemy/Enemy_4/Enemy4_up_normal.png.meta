@@ -169,7 +169,7 @@ TextureImporter:
         width: 82
         height: 122
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -183,15 +183,15 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Enemy4_up_normal_1
+      name: Enemy4_up_normal_2
       rect:
         serializedVersion: 2
         x: 151
-        y: 139
+        y: 138
         width: 82
         height: 114
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -205,7 +205,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Enemy4_up_normal_2
+      name: Enemy4_up_normal_1
       rect:
         serializedVersion: 2
         x: 23
@@ -213,7 +213,7 @@ TextureImporter:
         width: 82
         height: 118
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -235,7 +235,7 @@ TextureImporter:
         width: 82
         height: 118
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -252,7 +252,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: cce38616c6ac23548aa2f03500176945
     internalID: 0
     vertices: []
     indices: 
@@ -263,8 +263,8 @@ TextureImporter:
       entries: []
     nameFileIdTable:
       Enemy4_up_normal_0: -9223144016063219983
-      Enemy4_up_normal_1: 6409704104713590440
-      Enemy4_up_normal_2: 5948308145566112288
+      Enemy4_up_normal_1: 5948308145566112288
+      Enemy4_up_normal_2: 6409704104713590440
       Enemy4_up_normal_3: 6612777339994368058
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0

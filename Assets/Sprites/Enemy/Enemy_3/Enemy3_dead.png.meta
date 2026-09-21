@@ -158,12 +158,12 @@ TextureImporter:
       name: Enemy3_dead_0
       rect:
         serializedVersion: 2
-        x: 23
-        y: 151
-        width: 82
-        height: 86
+        x: 12
+        y: 76
+        width: 40
+        height: 42
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -180,12 +180,12 @@ TextureImporter:
       name: Enemy3_dead_1
       rect:
         serializedVersion: 2
-        x: 23
-        y: 23
-        width: 82
-        height: 86
+        x: 12
+        y: 12
+        width: 40
+        height: 42
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -202,7 +202,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: f1f840891b6d3d14f8659744dd0be42e
     internalID: 0
     vertices: []
     indices: 
@@ -210,7 +210,9 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     spriteCustomMetadata:
-      entries: []
+      entries:
+      - key: SpriteEditor.SliceSettings
+        value: '{"sliceOnImport":false,"gridCellCount":{"x":1.0,"y":1.0},"gridSpriteSize":{"x":64.0,"y":64.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":0,"keepEmptyRects":false,"isAlternate":false}'
     nameFileIdTable:
       Enemy3_dead_0: 3778657429887414876
       Enemy3_dead_1: 465406915209143708
