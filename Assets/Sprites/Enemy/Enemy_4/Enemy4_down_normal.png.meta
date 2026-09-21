@@ -1,43 +1,19 @@
 fileFormatVersion: 2
-guid: d14b5c67ec88a9c4795821ab6288716f
+guid: 182398d787d7e614697b0660bd0e6405
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 6169121183696713370
-    second: Down_movement_normal_0
+      213: 6196336667935104189
+    second: Enemy4_down_normal_0
   - first:
-      213: 2637719934557504241
-    second: Down_movement_normal_1
+      213: -91906289986585863
+    second: Enemy4_down_normal_1
   - first:
-      213: -8731229179324231226
-    second: Down_movement_normal_2
+      213: 4886984984880553519
+    second: Enemy4_down_normal_2
   - first:
-      213: -4189879031967587875
-    second: Down_movement_normal_3
-  - first:
-      213: -2676412119463637611
-    second: Down_movement_normal_4
-  - first:
-      213: -222413530919971510
-    second: Down_movement_normal_5
-  - first:
-      213: -8237560005493595742
-    second: Down_movement_normal_6
-  - first:
-      213: -7405147328797897011
-    second: Down_movement_normal_7
-  - first:
-      213: 2064547819866073963
-    second: Down_movement_normal_8
-  - first:
-      213: -3615012473991080852
-    second: Down_movement_normal_9
-  - first:
-      213: -1710315373045930638
-    second: Down_movement_normal_10
-  - first:
-      213: -3629660820811772229
-    second: Down_movement_normal_11
+      213: 31347464822169405
+    second: Enemy4_down_normal_3
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -185,133 +161,89 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Down_movement_normal_0
+      name: Enemy4_down_normal_0
       rect:
         serializedVersion: 2
-        x: 0
-        y: 128
-        width: 64
-        height: 64
+        x: 23
+        y: 131
+        width: 82
+        height: 118
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: a96749af70f1d9550800000000000000
-      internalID: 6169121183696713370
+      spriteID: dbcdff0be5fcdf550800000000000000
+      internalID: 6196336667935104189
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Down_movement_normal_1
+      name: Enemy4_down_normal_1
       rect:
         serializedVersion: 2
-        x: 64
-        y: 128
-        width: 64
-        height: 64
+        x: 151
+        y: 131
+        width: 82
+        height: 118
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 1f244442e401b9420800000000000000
-      internalID: 2637719934557504241
+      spriteID: 9fab9b857bb79bef0800000000000000
+      internalID: -91906289986585863
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Down_movement_normal_2
+      name: Enemy4_down_normal_2
       rect:
         serializedVersion: 2
-        x: 0
-        y: 64
-        width: 64
-        height: 64
+        x: 23
+        y: 3
+        width: 82
+        height: 114
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 6c19ad9425174d680800000000000000
-      internalID: -8731229179324231226
+      spriteID: f2e197e83fe02d340800000000000000
+      internalID: 4886984984880553519
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Down_movement_normal_3
+      name: Enemy4_down_normal_3
       rect:
         serializedVersion: 2
-        x: 64
-        y: 64
-        width: 64
-        height: 64
+        x: 151
+        y: 3
+        width: 82
+        height: 122
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: dd1e6b7283f8ad5c0800000000000000
-      internalID: -4189879031967587875
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Down_movement_normal_4
-      rect:
-        serializedVersion: 2
-        x: 0
-        y: 0
-        width: 64
-        height: 64
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 59dc1da8b597bdad0800000000000000
-      internalID: -2676412119463637611
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Down_movement_normal_5
-      rect:
-        serializedVersion: 2
-        x: 64
-        y: 0
-        width: 64
-        height: 64
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: a4556407214d9ecf0800000000000000
-      internalID: -222413530919971510
+      spriteID: d3f95596a5e5f6000800000000000000
+      internalID: 31347464822169405
       vertices: []
       indices: 
       edges: []
@@ -320,7 +252,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: a8956fbd4b4235841a35a140fa7e0954
+    spriteID: 
     internalID: 0
     vertices: []
     indices: 
@@ -328,16 +260,12 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     spriteCustomMetadata:
-      entries:
-      - key: SpriteEditor.SliceSettings
-        value: '{"sliceOnImport":false,"gridCellCount":{"x":1.0,"y":1.0},"gridSpriteSize":{"x":64.0,"y":64.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":1,"keepEmptyRects":false,"isAlternate":false}'
+      entries: []
     nameFileIdTable:
-      Down_movement_normal_0: 6169121183696713370
-      Down_movement_normal_1: 2637719934557504241
-      Down_movement_normal_2: -8731229179324231226
-      Down_movement_normal_3: -4189879031967587875
-      Down_movement_normal_4: -2676412119463637611
-      Down_movement_normal_5: -222413530919971510
+      Enemy4_down_normal_0: 6196336667935104189
+      Enemy4_down_normal_1: -91906289986585863
+      Enemy4_down_normal_2: 4886984984880553519
+      Enemy4_down_normal_3: 31347464822169405
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

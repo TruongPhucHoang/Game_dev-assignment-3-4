@@ -1,43 +1,25 @@
 fileFormatVersion: 2
-guid: d14b5c67ec88a9c4795821ab6288716f
+guid: 0e762ea978bd89f41b16b961886b31fb
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 6169121183696713370
-    second: Down_movement_normal_0
+      213: 24636918035438314
+    second: Power_up(6)_0
   - first:
-      213: 2637719934557504241
-    second: Down_movement_normal_1
+      213: 2961972987883740134
+    second: Power_up(6)_1
   - first:
-      213: -8731229179324231226
-    second: Down_movement_normal_2
+      213: -3386315079936185572
+    second: Power_up(6)_2
   - first:
-      213: -4189879031967587875
-    second: Down_movement_normal_3
+      213: -7057753139026233988
+    second: Power_up(6)_3
   - first:
-      213: -2676412119463637611
-    second: Down_movement_normal_4
+      213: 5719769746189753865
+    second: Power_up(6)_4
   - first:
-      213: -222413530919971510
-    second: Down_movement_normal_5
-  - first:
-      213: -8237560005493595742
-    second: Down_movement_normal_6
-  - first:
-      213: -7405147328797897011
-    second: Down_movement_normal_7
-  - first:
-      213: 2064547819866073963
-    second: Down_movement_normal_8
-  - first:
-      213: -3615012473991080852
-    second: Down_movement_normal_9
-  - first:
-      213: -1710315373045930638
-    second: Down_movement_normal_10
-  - first:
-      213: -3629660820811772229
-    second: Down_movement_normal_11
+      213: -2893452056834107252
+    second: Power_up(6)_5
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -185,13 +167,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Down_movement_normal_0
+      name: Power_up(6)_0
       rect:
         serializedVersion: 2
-        x: 0
-        y: 128
-        width: 64
-        height: 64
+        x: 28
+        y: 292
+        width: 72
+        height: 60
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -200,20 +182,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: a96749af70f1d9550800000000000000
-      internalID: 6169121183696713370
+      spriteID: aeadcdb7527875000800000000000000
+      internalID: 24636918035438314
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Down_movement_normal_1
+      name: Power_up(6)_1
       rect:
         serializedVersion: 2
-        x: 64
-        y: 128
-        width: 64
-        height: 64
+        x: 156
+        y: 292
+        width: 72
+        height: 60
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -222,20 +204,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 1f244442e401b9420800000000000000
-      internalID: 2637719934557504241
+      spriteID: 6ebdc114dba0b1920800000000000000
+      internalID: 2961972987883740134
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Down_movement_normal_2
+      name: Power_up(6)_2
       rect:
         serializedVersion: 2
-        x: 0
-        y: 64
-        width: 64
-        height: 64
+        x: 28
+        y: 164
+        width: 72
+        height: 60
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -244,20 +226,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 6c19ad9425174d680800000000000000
-      internalID: -8731229179324231226
+      spriteID: c1bead250646101d0800000000000000
+      internalID: -3386315079936185572
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Down_movement_normal_3
+      name: Power_up(6)_3
       rect:
         serializedVersion: 2
-        x: 64
-        y: 64
-        width: 64
-        height: 64
+        x: 156
+        y: 164
+        width: 72
+        height: 60
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -266,20 +248,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: dd1e6b7283f8ad5c0800000000000000
-      internalID: -4189879031967587875
+      spriteID: c7571f3e9e2dd0e90800000000000000
+      internalID: -7057753139026233988
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Down_movement_normal_4
+      name: Power_up(6)_4
       rect:
         serializedVersion: 2
-        x: 0
-        y: 0
-        width: 64
-        height: 64
+        x: 28
+        y: 36
+        width: 72
+        height: 60
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -288,20 +270,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 59dc1da8b597bdad0800000000000000
-      internalID: -2676412119463637611
+      spriteID: 90e9aae8744b06f40800000000000000
+      internalID: 5719769746189753865
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Down_movement_normal_5
+      name: Power_up(6)_5
       rect:
         serializedVersion: 2
-        x: 64
-        y: 0
-        width: 64
-        height: 64
+        x: 156
+        y: 36
+        width: 72
+        height: 60
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -310,8 +292,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: a4556407214d9ecf0800000000000000
-      internalID: -222413530919971510
+      spriteID: c8897c93fa468d7d0800000000000000
+      internalID: -2893452056834107252
       vertices: []
       indices: 
       edges: []
@@ -320,7 +302,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: a8956fbd4b4235841a35a140fa7e0954
+    spriteID: 5fa5ba9982da24a479dc102d01c2bdc3
     internalID: 0
     vertices: []
     indices: 
@@ -330,14 +312,14 @@ TextureImporter:
     spriteCustomMetadata:
       entries:
       - key: SpriteEditor.SliceSettings
-        value: '{"sliceOnImport":false,"gridCellCount":{"x":1.0,"y":1.0},"gridSpriteSize":{"x":64.0,"y":64.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":1,"keepEmptyRects":false,"isAlternate":false}'
+        value: '{"sliceOnImport":false,"gridCellCount":{"x":1.0,"y":1.0},"gridSpriteSize":{"x":64.0,"y":64.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":0,"keepEmptyRects":false,"isAlternate":false}'
     nameFileIdTable:
-      Down_movement_normal_0: 6169121183696713370
-      Down_movement_normal_1: 2637719934557504241
-      Down_movement_normal_2: -8731229179324231226
-      Down_movement_normal_3: -4189879031967587875
-      Down_movement_normal_4: -2676412119463637611
-      Down_movement_normal_5: -222413530919971510
+      Power_up(6)_0: 24636918035438314
+      Power_up(6)_1: 2961972987883740134
+      Power_up(6)_2: -3386315079936185572
+      Power_up(6)_3: -7057753139026233988
+      Power_up(6)_4: 5719769746189753865
+      Power_up(6)_5: -2893452056834107252
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
