@@ -2,10 +2,11 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
-[ExecuteAlways]
-[DefaultExecutionOrder(-100)]
-public class LevelMapBuilder : MonoBehaviour
+public class LevelGenerator : MonoBehaviour
 {
+    [Header("Map CSV")]
+    [SerializeField] TextAsset mapCsv;
+
     [Header("Sprites (Stage_object legend)")]
     [SerializeField] Sprite Outside_corner;   // 1
     [SerializeField] Sprite Outside_wall;     // 2
@@ -14,16 +15,17 @@ public class LevelMapBuilder : MonoBehaviour
     [SerializeField] Sprite Coin;             // 5
     [SerializeField] Sprite Power_up;         // 6
     [SerializeField] Sprite T_junction;       // 7
-    [SerializeField] Sprite Enemy_exit;       // 8 
+    [SerializeField] Sprite Enemy_exit;       // 8
 
-    [Header("Optional animators")]
-    [SerializeField] RuntimeAnimatorController Coins;
-    [SerializeField] RuntimeAnimatorController Power_up_controller;
+    [Header("Animators")]
+    [SerializeField] RuntimeAnimatorController Coins_animator;
+    [SerializeField] RuntimeAnimatorController Power_up_animator;
 
     [Header("Layout")]
     [SerializeField] float tileSize = 1f;
     [SerializeField] Camera targetCamera;
     [SerializeField] bool addSideTunnels = true;
+    [SerializeField] Transform extraView;
 
     [Header("Tiles")]
     [SerializeField] Tile Tile_Outside_corner;
@@ -33,78 +35,111 @@ public class LevelMapBuilder : MonoBehaviour
     [SerializeField] Tile Tile_T_junction;
     [SerializeField] Tile Tile_Enemy_exit;
 
-    static readonly int[,] LevelMap =
-    {
-        {1,2,2,2,2,2,2,2,2,2,2,2,2,7},
-        {2,5,5,5,5,5,5,5,5,5,5,5,5,4},
-        {2,5,3,4,4,3,5,3,4,4,4,3,5,4},
-        {2,6,4,0,0,4,5,4,0,0,0,4,5,4},
-        {2,5,3,4,4,3,5,3,4,4,4,3,5,3},
-        {2,5,5,5,5,5,5,5,5,5,5,5,5,5},
-        {2,5,3,4,4,3,5,3,3,5,3,4,4,4},
-        {2,5,3,4,4,3,5,4,4,5,3,4,4,3},
-        {2,5,5,5,5,5,5,4,4,5,5,5,5,4},
-        {1,2,2,2,2,1,5,4,3,4,4,3,0,4},
-        {0,0,0,0,0,2,5,4,3,4,4,3,0,3},
-        {0,0,0,0,0,2,5,4,4,0,0,0,0,0},
-        {0,0,0,0,0,2,5,4,4,0,3,4,4,8},
-        {2,2,2,2,2,1,5,3,3,0,4,0,0,0},
-        {0,0,0,0,0,0,5,0,0,0,4,0,0,0}
-    };
-
+    int[,] levelMap;
     Tilemap _walls;
     Transform _pickups;
     readonly Dictionary<int, Tile> _tiles = new Dictionary<int, Tile>();
-    bool _building;
+    bool _generated;
 
-    void OnEnable()
+    void Start()
     {
-        if (!Application.isPlaying)
-            Build();
-    }
-
-    void Awake()
-    {
-        if (Application.isPlaying)
-            Wipe();
-    }
-
-    public void Wipe()
-    {
-        EnsureGrid();
-        ClearGenerated();
+        GenerateLevel();
     }
 
     [ContextMenu("Rebuild Level")]
-    public void Build()
+    public void GenerateLevel()
     {
-        if (_building) return;
-        _building = true;
-        try
-        {
-            EnsureGrid();
-            ClearGenerated();
+        if (_generated) return;
+        _generated = true;
 
-            int[,] full = BuildFullMap(out int rows, out int cols);
-            for (int r = 0; r < rows; r++)
+        levelMap = ReadFirstArray(mapCsv);
+        if (levelMap == null)
+            return;
+
+        EnsureGrid();
+        ClearGenerated();
+
+        int[,] full = BuildFullMap(out int rows, out int cols);
+        for (int r = 0; r < rows; r++)
+        {
+            for (int c = 0; c < cols; c++)
+                PlaceCell(full, r, c, rows, cols);
+        }
+
+        ApplyWallRotations(full, rows, cols);
+        FitCamera(rows, cols);
+    }
+
+    static int[,] ReadFirstArray(TextAsset csv)
+    {
+        if (csv == null || string.IsNullOrEmpty(csv.text))
+            return null;
+
+        var rows = new List<int[]>();
+        string[] lines = csv.text.Split(new[] { "\r\n", "\n", "\r" }, System.StringSplitOptions.None);
+
+        for (int i = 0; i < lines.Length; i++)
+        {
+            string line = lines[i];
+            if (string.IsNullOrWhiteSpace(line.Replace(",", "")))
             {
-                for (int c = 0; c < cols; c++)
-                    PlaceCell(full, r, c, rows, cols);
+                if (rows.Count > 0)
+                    break;
+                continue;
             }
 
-            FitCamera(rows, cols);
+            string[] cells = line.Split(',');
+            if (cells.Length == 0 || !int.TryParse(cells[0].Trim(), out _))
+            {
+                if (rows.Count > 0)
+                    break;
+                continue;
+            }
+
+            var row = new List<int>();
+            bool numeric = true;
+            for (int c = 0; c < cells.Length; c++)
+            {
+                string cell = cells[c].Trim();
+                if (cell.Length == 0)
+                    continue;
+                if (!int.TryParse(cell, out int id))
+                {
+                    numeric = false;
+                    break;
+                }
+                row.Add(id);
+            }
+
+            if (!numeric)
+            {
+                if (rows.Count > 0)
+                    break;
+                continue;
+            }
+
+            if (row.Count > 0)
+                rows.Add(row.ToArray());
         }
-        finally
+
+        if (rows.Count == 0)
+            return null;
+
+        int cols = rows[0].Length;
+        var map = new int[rows.Count, cols];
+        for (int r = 0; r < rows.Count; r++)
         {
-            _building = false;
+            int n = Mathf.Min(cols, rows[r].Length);
+            for (int c = 0; c < n; c++)
+                map[r, c] = rows[r][c];
         }
+        return map;
     }
 
     int[,] BuildFullMap(out int rows, out int cols)
     {
-        int qRows = LevelMap.GetLength(0);
-        int qCols = LevelMap.GetLength(1);
-        // Keep both copies of the last column 
+        int qRows = levelMap.GetLength(0);
+        int qCols = levelMap.GetLength(1);
         rows = qRows * 2 - 1;
         int mazeCols = qCols * 2;
         int tunnel = addSideTunnels ? 1 : 0;
@@ -115,7 +150,7 @@ public class LevelMapBuilder : MonoBehaviour
         {
             for (int c = 0; c < qCols; c++)
             {
-                int id = LevelMap[r, c];
+                int id = levelMap[r, c];
                 full[r, tunnel + c] = id;
                 full[r, tunnel + mazeCols - 1 - c] = id;
             }
@@ -148,10 +183,28 @@ public class LevelMapBuilder : MonoBehaviour
 
         Tile tile = GetTile(id, sprite);
         _walls.SetTile(cell, tile);
-        _walls.SetTileFlags(cell, TileFlags.None);
+    }
 
-        float zRot = RotationFor(map, r, c, rows, cols, id);
-        _walls.SetTransformMatrix(cell, Matrix4x4.Rotate(Quaternion.Euler(0f, 0f, zRot)));
+    void ApplyWallRotations(int[,] map, int rows, int cols)
+    {
+        if (_walls == null) return;
+
+        for (int r = 0; r < rows; r++)
+        {
+            for (int c = 0; c < cols; c++)
+            {
+                int id = map[r, c];
+                if (id == 0 || id == 5 || id == 6) continue;
+
+                var cell = new Vector3Int(c, -r, 0);
+                if (_walls.GetTile(cell) == null) continue;
+
+                float zRot = RotationFor(map, r, c, rows, cols, id);
+                _walls.SetTileFlags(cell, TileFlags.None);
+                _walls.SetTransformMatrix(cell, Matrix4x4.Rotate(Quaternion.Euler(0f, 0f, zRot)));
+                _walls.SetTileFlags(cell, TileFlags.LockTransform);
+            }
+        }
     }
 
     void PlacePickup(int id, Vector3Int cell)
@@ -169,7 +222,7 @@ public class LevelMapBuilder : MonoBehaviour
         sr.sprite = sprite;
         sr.sortingOrder = 2;
 
-        RuntimeAnimatorController controller = id == 6 ? Power_up_controller : Coins;
+        RuntimeAnimatorController controller = id == 6 ? Power_up_animator : Coins_animator;
         if (controller != null)
         {
             var anim = go.AddComponent<Animator>();
@@ -235,14 +288,6 @@ public class LevelMapBuilder : MonoBehaviour
             }
         }
 
-        foreach (Tile tile in _tiles.Values)
-        {
-            if (tile == null) continue;
-            if ((tile.hideFlags & HideFlags.HideAndDontSave) == 0) continue;
-            if (Application.isPlaying) Destroy(tile);
-            else DestroyImmediate(tile);
-        }
-        _tiles.Clear();
     }
 
     Tile GetTile(int id, Sprite sprite)
@@ -256,16 +301,17 @@ public class LevelMapBuilder : MonoBehaviour
             return asset;
         }
 
-        if (_tiles.TryGetValue(id, out Tile existing) && existing != null)
-            return existing;
+        if (!_tiles.TryGetValue(id, out Tile tile) || tile == null)
+        {
+            tile = ScriptableObject.CreateInstance<Tile>();
+            tile.name = $"Tile_{id}";
+            tile.colliderType = Tile.ColliderType.None;
+            tile.hideFlags = HideFlags.HideAndDontSave;
+            tile.flags = TileFlags.LockTransform;
+            _tiles[id] = tile;
+        }
 
-        Tile tile = ScriptableObject.CreateInstance<Tile>();
-        tile.name = $"Tile_{id}";
         tile.sprite = sprite;
-        tile.colliderType = Tile.ColliderType.None;
-        tile.flags = TileFlags.LockTransform;
-        tile.hideFlags = HideFlags.HideAndDontSave;
-        _tiles[id] = tile;
         return tile;
     }
 
@@ -321,7 +367,6 @@ public class LevelMapBuilder : MonoBehaviour
         bool wu = !u;
         bool wd = !d;
 
-        // Outside_wall / Inside_wall / Enemy_exit is a horizontal bar through the tile centre.
         if (id == 2 || id == 4 || id == 8)
         {
             int vertical = (u ? 1 : 0) + (d ? 1 : 0);
@@ -329,7 +374,6 @@ public class LevelMapBuilder : MonoBehaviour
             return vertical > horizontal ? 90f : 0f;
         }
 
-        // T_junction points down (bar left-right, stem down).
         if (id == 7)
         {
             int best = int.MinValue;
@@ -341,7 +385,6 @@ public class LevelMapBuilder : MonoBehaviour
             return rot;
         }
 
-        // Inside_corner in a T_junction has walls on all 4 sides
         if (id == 3 && l && rg && u && d)
         {
             bool nw = !IsWall(Cell(map, r - 1, c - 1, rows, cols));
@@ -354,7 +397,6 @@ public class LevelMapBuilder : MonoBehaviour
             if (ne) return 90f;
         }
 
-        // Outside_corner and Inside_corner is an L from the centre
         {
             int best = int.MinValue;
             float rot = 0f;
@@ -396,18 +438,62 @@ public class LevelMapBuilder : MonoBehaviour
 
     void FitCamera(int rows, int cols)
     {
+        if (rows <= 0 || cols <= 0) return;
+
         Camera cam = targetCamera != null ? targetCamera : Camera.main;
         if (cam == null) return;
 
-        Vector3 center = new Vector3((cols - 1) * tileSize * 0.5f, -(rows - 1) * tileSize * 0.5f, -10f);
-        cam.transform.position = center;
+        float minX = -0.5f * tileSize;
+        float maxX = (cols - 0.5f) * tileSize;
+        float maxY = 0.5f * tileSize;
+        float minY = -(rows - 0.5f) * tileSize;
+
+        Transform extra = extraView;
+        if (extra == null)
+        {
+            GameObject demo = GameObject.Find("Demo_animation");
+            if (demo != null)
+                extra = demo.transform;
+        }
+        EncapsulateGroup(extra, ref minX, ref maxX, ref minY, ref maxY);
+
+        float pad = tileSize * 1.5f;
+        minX -= pad;
+        maxX += pad;
+        minY -= pad;
+        maxY += pad;
+
+        float width = maxX - minX;
+        float height = maxY - minY;
+        cam.transform.position = new Vector3((minX + maxX) * 0.5f, (minY + maxY) * 0.5f, -10f);
         cam.orthographic = true;
         cam.clearFlags = CameraClearFlags.SolidColor;
         cam.backgroundColor = new Color32(0x04, 0x0C, 0x24, 0xFF);
 
-        float width = cols * tileSize;
-        float height = rows * tileSize;
-        float aspect = cam.aspect > 0.1f ? cam.aspect : 16f / 9f;
-        cam.orthographicSize = Mathf.Max(height * 0.5f, width / (2f * aspect)) + tileSize;
+        const float aspect = 16f / 9f;
+        cam.orthographicSize = Mathf.Max(height * 0.5f, width / (2f * aspect));
+    }
+
+    static void EncapsulateGroup(Transform root, ref float minX, ref float maxX, ref float minY, ref float maxY)
+    {
+        if (root == null) return;
+
+        const float maxFromRoot = 8f;
+        Vector3 origin = root.position;
+
+        Transform[] nodes = root.GetComponentsInChildren<Transform>();
+        for (int i = 0; i < nodes.Length; i++)
+        {
+            Vector3 p = nodes[i].position;
+            p.x = Mathf.Clamp(p.x, origin.x - maxFromRoot, origin.x + maxFromRoot);
+            p.y = Mathf.Clamp(p.y, origin.y - maxFromRoot, origin.y + maxFromRoot);
+            Vector3 s = nodes[i].lossyScale;
+            float hx = Mathf.Min(Mathf.Abs(s.x), 6f) * 0.5f;
+            float hy = Mathf.Min(Mathf.Abs(s.y), 6f) * 0.5f;
+            minX = Mathf.Min(minX, p.x - hx);
+            maxX = Mathf.Max(maxX, p.x + hx);
+            minY = Mathf.Min(minY, p.y - hy);
+            maxY = Mathf.Max(maxY, p.y + hy);
+        }
     }
 }

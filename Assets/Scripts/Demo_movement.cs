@@ -46,7 +46,7 @@ public class Demo_movement : MonoBehaviour
     void Start()
     {
         if (levelGrid == null)
-            levelGrid = FindFirstObjectByType<Grid>();
+            levelGrid = FindAnyObjectByType<Grid>();
 
         corner = 0;
         BeginSegment();
