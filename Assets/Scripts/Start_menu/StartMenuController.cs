@@ -76,7 +76,7 @@ public class StartMenuController : MonoBehaviour
         if (FindAnyObjectByType<EventSystem>() != null)
             return;
 
-        var go = new GameObject("EventSystem");
+        var go = new GameObject("InputController");
         go.AddComponent<EventSystem>();
         go.AddComponent<InputSystemUIInputModule>();
     }
