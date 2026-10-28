@@ -36,12 +36,19 @@ public class LevelGenerator : MonoBehaviour
     [SerializeField] Tile Tile_Enemy_exit;
 
     int[,] levelMap;
+    int[,] fullMap;
+    int mapRows;
+    int mapCols;
+    Grid grid;
     Tilemap _walls;
     Transform _pickups;
     readonly Dictionary<int, Tile> _tiles = new Dictionary<int, Tile>();
     bool _generated;
 
-    void Start()
+    public bool HasMap => fullMap != null;
+    public float TileSize => tileSize;
+
+    void Awake()
     {
         GenerateLevel();
     }
@@ -60,6 +67,9 @@ public class LevelGenerator : MonoBehaviour
         ClearGenerated();
 
         int[,] full = BuildFullMap(out int rows, out int cols);
+        fullMap = full;
+        mapRows = rows;
+        mapCols = cols;
         for (int r = 0; r < rows; r++)
         {
             for (int c = 0; c < cols; c++)
@@ -236,6 +246,7 @@ public class LevelGenerator : MonoBehaviour
         if (grid == null)
             grid = gameObject.AddComponent<Grid>();
         grid.cellSize = new Vector3(tileSize, tileSize, 1f);
+        this.grid = grid;
 
         _walls = transform.Find("Walls")?.GetComponent<Tilemap>();
         if (_walls == null)
@@ -343,6 +354,43 @@ public class LevelGenerator : MonoBehaviour
             case 8: return Enemy_exit;
             default: return null;
         }
+    }
+
+    public Vector3Int WorldToCell(Vector3 world)
+    {
+        if (grid == null)
+            return Vector3Int.zero;
+        return grid.WorldToCell(world);
+    }
+
+    public Vector3 CellCenter(Vector3Int cell)
+    {
+        if (grid == null)
+            return new Vector3(cell.x + 0.5f, cell.y + 0.5f, 0f);
+        return grid.GetCellCenterWorld(cell);
+    }
+
+    public int TileId(Vector3Int cell)
+    {
+        if (fullMap == null)
+            return -1;
+        int row = -cell.y;
+        int col = cell.x;
+        if (row < 0 || col < 0 || row >= mapRows || col >= mapCols)
+            return -1;
+        return fullMap[row, col];
+    }
+
+    public bool IsWalkableForPacStudent(Vector3Int cell)
+    {
+        int id = TileId(cell);
+        return id == 0 || id == 5 || id == 6;
+    }
+
+    public bool IsPellet(Vector3Int cell)
+    {
+        int id = TileId(cell);
+        return id == 5 || id == 6;
     }
 
     static bool IsWall(int id)
