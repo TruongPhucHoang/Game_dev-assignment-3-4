@@ -3,11 +3,13 @@ using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(Animator))]
 [RequireComponent(typeof(AudioSource))]
+[RequireComponent(typeof(Rigidbody2D))]
 public class PacStudentController : MonoBehaviour
 {
     [SerializeField] float tilesPerSecond = 5f;
     [SerializeField] AudioClip pelletMoveClip;
     [SerializeField] AudioClip emptyMoveClip;
+    [SerializeField] AudioClip wallHitClip;
 
     KeyCode lastInput = KeyCode.None;
     KeyCode currentInput = KeyCode.None;
@@ -15,11 +17,22 @@ public class PacStudentController : MonoBehaviour
     LevelGenerator level;
     Animator animator;
     AudioSource moveAudio;
+    AudioSource wallAudio;
+    Rigidbody2D body;
+    CircleCollider2D bodyCollider;
     ParticleSystem dust;
+    ParticleSystem collisionDust;
     Transform dustTransform;
     Quaternion dustFacingRight = Quaternion.identity;
     CellTween tween = new CellTween();
     string facingState = "Right_move";
+    Vector3Int lastStep = Vector3Int.right;
+    Vector3Int bumpStep;
+    Vector3 bumpOrigin;
+    Vector3Int heldWallCell;
+    bool holdingWall;
+    bool bumping;
+    bool bumpHandled;
 
     void Awake()
     {
@@ -29,12 +42,43 @@ public class PacStudentController : MonoBehaviour
         moveAudio.playOnAwake = false;
         moveAudio.loop = true;
         moveAudio.spatialBlend = 0f;
-        dust = GetComponentInChildren<ParticleSystem>(true);
+
+        wallAudio = gameObject.AddComponent<AudioSource>();
+        wallAudio.playOnAwake = false;
+        wallAudio.loop = false;
+        wallAudio.spatialBlend = 0f;
+
+        body = GetComponent<Rigidbody2D>();
+        body.bodyType = RigidbodyType2D.Kinematic;
+        body.gravityScale = 0f;
+        body.constraints = RigidbodyConstraints2D.FreezeRotation;
+        body.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
+
+        bodyCollider = GetComponent<CircleCollider2D>();
+        if (bodyCollider == null)
+            bodyCollider = gameObject.AddComponent<CircleCollider2D>();
+        bodyCollider.isTrigger = true;
+        float scale = Mathf.Max(0.01f, Mathf.Abs(transform.lossyScale.x));
+        bodyCollider.radius = 0.28f / scale;
+
+        dust = transform.Find("Movement_dust")?.GetComponent<ParticleSystem>();
+        if (dust == null)
+            dust = GetComponentInChildren<ParticleSystem>(true);
         if (dust != null)
         {
             dustTransform = dust.transform;
             dustFacingRight = dustTransform.localRotation;
         }
+
+        collisionDust = transform.Find("Collision_dust")?.GetComponent<ParticleSystem>();
+        if (collisionDust != null)
+        {
+            var main = collisionDust.main;
+            main.playOnAwake = false;
+            main.simulationSpace = ParticleSystemSimulationSpace.World;
+            collisionDust.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+        }
+
         StopMovingPresentation();
     }
 
@@ -45,10 +89,12 @@ public class PacStudentController : MonoBehaviour
             level.GenerateLevel();
 
         if (level != null && level.HasMap)
-            transform.position = level.CellCenter(level.WorldToCell(transform.position));
+            MoveBody(level.CellCenter(level.WorldToCell(transform.position)));
 
         FaceRightIdle();
         StopMovingPresentation();
+        if (collisionDust != null)
+            collisionDust.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
     }
 
     void Update()
@@ -57,15 +103,43 @@ public class PacStudentController : MonoBehaviour
 
         if (tween.Active)
         {
-            transform.position = tween.Step(Time.deltaTime);
+            MoveBody(tween.Step(Time.deltaTime));
             if (tween.Active)
                 return;
+
+            if (bumping)
+            {
+                bumping = false;
+                MoveBody(bumpOrigin);
+                StopMovingPresentation();
+                return;
+            }
         }
 
         if (TryStep(lastInput) || TryStep(currentInput))
             return;
 
+        if (TryBump(lastInput))
+            return;
+
         StopMovingPresentation();
+    }
+
+    void OnTriggerEnter2D(Collider2D other)
+    {
+        if (!bumping || bumpHandled || other.GetComponent<WallTrigger>() == null)
+            return;
+
+        bumpHandled = true;
+        Vector3 contact = other.ClosestPoint(transform.position);
+        if ((contact - transform.position).sqrMagnitude < 0.0001f)
+            contact = bumpOrigin + (Vector3)bumpStep * (level != null ? level.TileSize * 0.5f : 0.5f);
+
+        tween.Cancel();
+        bumping = false;
+        MoveBody(bumpOrigin);
+        StopMovingPresentation();
+        PlayWallHit(contact);
     }
 
     void ReadInput()
@@ -91,8 +165,17 @@ public class PacStudentController : MonoBehaviour
 
         Vector3Int fromCell = level.WorldToCell(transform.position);
         Vector3Int nextCell = fromCell + step;
-        if (!level.IsWalkableForPacStudent(nextCell))
+        if (level.TryTunnelWarp(fromCell, step, out Vector3Int arrived))
+        {
+            fromCell = arrived;
+            nextCell = arrived + step;
+            if (!level.IsWalkableForPacStudent(nextCell))
+                nextCell = arrived;
+        }
+        else if (!level.IsWalkableForPacStudent(nextCell))
+        {
             return false;
+        }
 
         if (input == lastInput)
             currentInput = lastInput;
@@ -102,9 +185,60 @@ public class PacStudentController : MonoBehaviour
         float tileSpeed = Mathf.Max(0.01f, tilesPerSecond) * Mathf.Max(0.01f, level.TileSize);
         float distance = Vector3.Distance(start, end);
         tween.Begin(start, end, distance / tileSpeed);
-        transform.position = start;
+        lastStep = step;
+        bumping = false;
+        holdingWall = false;
+        MoveBody(start);
         BeginMovingPresentation(step, level.IsPellet(nextCell));
         return true;
+    }
+
+    bool TryBump(KeyCode input)
+    {
+        if (level == null || !level.HasMap || !Direction(input, out Vector3Int step))
+            return false;
+
+        Vector3Int fromCell = level.WorldToCell(transform.position);
+        Vector3Int nextCell = fromCell + step;
+        if (!level.IsWallCell(nextCell))
+            return false;
+
+        if (holdingWall && nextCell == heldWallCell)
+            return true;
+
+        heldWallCell = nextCell;
+        holdingWall = true;
+        bumpOrigin = level.CellCenter(fromCell);
+        bumpStep = step;
+        bumpHandled = false;
+        bumping = true;
+        lastStep = step;
+
+        float reach = level.TileSize * 0.42f;
+        float tileSpeed = Mathf.Max(0.01f, tilesPerSecond) * Mathf.Max(0.01f, level.TileSize);
+        tween.Begin(bumpOrigin, bumpOrigin + (Vector3)step * reach, reach / tileSpeed);
+        MoveBody(bumpOrigin);
+        BeginMovingPresentation(step, false);
+        return true;
+    }
+
+    void PlayWallHit(Vector3 point)
+    {
+        if (wallHitClip != null && wallAudio != null)
+            wallAudio.PlayOneShot(wallHitClip);
+
+        if (collisionDust == null)
+            return;
+
+        collisionDust.transform.position = point;
+        collisionDust.Emit(14);
+    }
+
+    void MoveBody(Vector3 position)
+    {
+        transform.position = position;
+        if (body != null)
+            body.position = position;
     }
 
     void BeginMovingPresentation(Vector3Int step, bool eatingPellet)
@@ -212,6 +346,11 @@ public class PacStudentController : MonoBehaviour
             duration = Mathf.Max(0.0001f, seconds);
             elapsed = 0f;
             Active = true;
+        }
+
+        public void Cancel()
+        {
+            Active = false;
         }
 
         public Vector3 Step(float deltaTime)

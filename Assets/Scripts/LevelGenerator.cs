@@ -77,6 +77,7 @@ public class LevelGenerator : MonoBehaviour
         }
 
         ApplyWallRotations(full, rows, cols);
+        BuildWallTriggers(full, rows, cols);
         FitCamera(rows, cols);
     }
 
@@ -299,6 +300,38 @@ public class LevelGenerator : MonoBehaviour
             }
         }
 
+        Transform triggers = transform.Find("WallTriggers");
+        if (triggers != null)
+        {
+            if (Application.isPlaying) Destroy(triggers.gameObject);
+            else DestroyImmediate(triggers.gameObject);
+        }
+    }
+
+    void BuildWallTriggers(int[,] map, int rows, int cols)
+    {
+        var root = new GameObject("WallTriggers");
+        root.transform.SetParent(transform, false);
+        root.transform.localPosition = Vector3.zero;
+
+        for (int r = 0; r < rows; r++)
+        {
+            for (int c = 0; c < cols; c++)
+            {
+                if (!IsWall(map[r, c]))
+                    continue;
+
+                var cell = new Vector3Int(c, -r, 0);
+                var go = new GameObject("WallTrigger");
+                go.transform.SetParent(root.transform, false);
+                go.transform.position = CellCenter(cell);
+
+                var box = go.AddComponent<BoxCollider2D>();
+                box.isTrigger = true;
+                box.size = new Vector2(tileSize * 0.92f, tileSize * 0.92f);
+                go.AddComponent<WallTrigger>();
+            }
+        }
     }
 
     Tile GetTile(int id, Sprite sprite)
@@ -383,14 +416,43 @@ public class LevelGenerator : MonoBehaviour
 
     public bool IsWalkableForPacStudent(Vector3Int cell)
     {
+        if (mapCols > 1 && (cell.x == 0 || cell.x == mapCols - 1))
+            return false;
+
         int id = TileId(cell);
         return id == 0 || id == 5 || id == 6;
+    }
+
+    public bool TryTunnelWarp(Vector3Int from, Vector3Int step, out Vector3Int destination)
+    {
+        destination = from;
+        if (mapCols <= 2 || step.x == 0)
+            return false;
+
+        bool exitLeft = step.x < 0 && from.x == 1;
+        bool exitRight = step.x > 0 && from.x == mapCols - 2;
+        if (!exitLeft && !exitRight)
+            return false;
+
+        int id = TileId(from);
+        if (id != 0 && id != 5 && id != 6)
+            return false;
+
+        int arriveX = exitLeft ? mapCols - 2 : 1;
+        destination = new Vector3Int(arriveX, from.y, 0);
+        int arriveId = TileId(destination);
+        return arriveId == 0 || arriveId == 5 || arriveId == 6;
     }
 
     public bool IsPellet(Vector3Int cell)
     {
         int id = TileId(cell);
         return id == 5 || id == 6;
+    }
+
+    public bool IsWallCell(Vector3Int cell)
+    {
+        return IsWall(TileId(cell));
     }
 
     public bool TryGetLevelRect(out Vector2 center, out Vector2 size)
@@ -560,4 +622,8 @@ public class LevelGenerator : MonoBehaviour
             maxY = Mathf.Max(maxY, p.y + hy);
         }
     }
+}
+
+public class WallTrigger : MonoBehaviour
+{
 }
