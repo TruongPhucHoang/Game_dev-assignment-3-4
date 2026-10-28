@@ -167,6 +167,11 @@ public class LevelRound : MonoBehaviour
         }
     }
 
+    public void RefreshMusic()
+    {
+        FollowMusic();
+    }
+
     void FollowMusic()
     {
         if (music == null)

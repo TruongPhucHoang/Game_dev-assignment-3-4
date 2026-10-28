@@ -24,6 +24,7 @@ public class GhostController : MonoBehaviour
     readonly List<Vector3Int> back = new List<Vector3Int>();
     readonly List<Vector3Int> filtered = new List<Vector3Int>();
     Vector3Int lastStep = Vector3Int.right;
+    string facingClip;
     int number = 1;
     bool hasStep;
     bool leftHouse;
@@ -70,11 +71,16 @@ public class GhostController : MonoBehaviour
             return;
 
         if (agent != null && agent.IsDead)
+        {
+            MoveDead();
             return;
+        }
 
         if (tween.Active)
         {
             transform.position = tween.Step(Time.deltaTime);
+            if (hasStep)
+                PlayFacing(lastStep);
             if (tween.Active)
                 return;
         }
@@ -143,7 +149,7 @@ public class GhostController : MonoBehaviour
         Vector3Int to = from + step;
         Vector3 start = level.CellCenter(from);
         Vector3 end = level.CellCenter(to);
-        float tileSpeed = NormalTilesPerSecond() * Mathf.Max(0.01f, level.TileSize);
+        float tileSpeed = CurrentTilesPerSecond() * Mathf.Max(0.01f, level.TileSize);
         float distance = Vector3.Distance(start, end);
         tween.Begin(start, end, distance / tileSpeed);
         lastStep = step;
@@ -156,6 +162,33 @@ public class GhostController : MonoBehaviour
     {
         float pac = player != null ? player.TilesPerSecond : 5f;
         return Mathf.Max(0.01f, pac) * NormalSpeedScale;
+    }
+
+    float CurrentTilesPerSecond()
+    {
+        float normal = NormalTilesPerSecond();
+        if (agent != null && agent.State != EnemyController.Mood.Normal)
+            return normal * 0.5f;
+        return normal;
+    }
+
+    void MoveDead()
+    {
+        tween.Cancel();
+        Vector3 target = agent.Home;
+        Vector3 offset = target - transform.position;
+        float distance = offset.magnitude;
+        float speed = CurrentTilesPerSecond() * Mathf.Max(0.01f, level.TileSize);
+        float step = speed * Time.deltaTime;
+        if (distance <= step || distance <= 0.01f)
+        {
+            leftHouse = false;
+            hasStep = false;
+            agent.ReviveAtHome();
+            return;
+        }
+
+        transform.position += offset / distance * step;
     }
 
     Vector3Int ChooseExit(Vector3Int cell)
@@ -231,18 +264,22 @@ public class GhostController : MonoBehaviour
         if (pool.Count == 0)
             return Vector3Int.zero;
 
-        if (number == 4)
+        int behavior = number;
+        if (agent != null && (agent.State == EnemyController.Mood.Scared || agent.State == EnemyController.Mood.Recovering))
+            behavior = 1;
+
+        if (behavior == 4)
             return ChooseClockwise(cell, hasStep ? lastStep : Vector3Int.right, pool);
 
-        if (number == 1 || number == 2)
+        if (behavior == 1 || behavior == 2)
         {
             float here = DistanceToPlayer(cell);
             filtered.Clear();
             for (int i = 0; i < pool.Count; i++)
             {
                 float there = DistanceToPlayer(cell + pool[i]);
-                bool flee = number == 1 && there + 0.001f >= here;
-                bool chase = number == 2 && there <= here + 0.001f;
+                bool flee = behavior == 1 && there + 0.001f >= here;
+                bool chase = behavior == 2 && there <= here + 0.001f;
                 if (flee || chase)
                     filtered.Add(pool[i]);
             }
@@ -373,7 +410,9 @@ public class GhostController : MonoBehaviour
 
     void PlayFacing(Vector3Int step)
     {
-        if (animator == null || agent == null || agent.State != EnemyController.Mood.Normal)
+        if (animator == null || agent == null || step == Vector3Int.zero)
+            return;
+        if (agent.State == EnemyController.Mood.Dead)
             return;
 
         string direction = "right";
@@ -384,7 +423,13 @@ public class GhostController : MonoBehaviour
         else if (step.y < 0)
             direction = "down";
 
-        animator.Play("Enemy1N_" + direction, 0, 0f);
+        string prefix = agent.State == EnemyController.Mood.Normal ? "Enemy1N_" : "Enemy1W_";
+        string stateName = prefix + direction;
+        if (facingClip == stateName && animator.GetCurrentAnimatorStateInfo(0).IsName(stateName))
+            return;
+
+        facingClip = stateName;
+        animator.Play(stateName, 0, 0f);
     }
 
     static int NumberFromName(string ghostName)
