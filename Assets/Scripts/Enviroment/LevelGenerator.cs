@@ -240,12 +240,15 @@ public class LevelGenerator : MonoBehaviour
             anim.runtimeAnimatorController = controller;
         }
 
-        if (id == 5)
+        if (id == 5 || id == 6)
         {
-            var pellet = go.AddComponent<CircleCollider2D>();
-            pellet.isTrigger = true;
-            pellet.radius = tileSize * 0.3f;
-            go.AddComponent<PelletPickup>();
+            var pickup = go.AddComponent<CircleCollider2D>();
+            pickup.isTrigger = true;
+            pickup.radius = tileSize * (id == 6 ? 0.4f : 0.3f);
+            if (id == 6)
+                go.AddComponent<PowerPill>();
+            else
+                go.AddComponent<PelletPickup>();
         }
     }
 
@@ -467,7 +470,7 @@ public class LevelGenerator : MonoBehaviour
         int col = cell.x;
         if (row < 0 || col < 0 || row >= mapRows || col >= mapCols)
             return;
-        if (fullMap[row, col] == 5)
+        if (fullMap[row, col] == 5 || fullMap[row, col] == 6)
             fullMap[row, col] = 0;
     }
 
@@ -650,5 +653,9 @@ public class WallTrigger : MonoBehaviour
 }
 
 public class PelletPickup : MonoBehaviour
+{
+}
+
+public class PowerPill : MonoBehaviour
 {
 }

@@ -16,6 +16,8 @@ public class HUDController : MonoBehaviour
 
     CanvasScaler scaler;
     int score;
+    int lives = 3;
+    Image[] lifeIcons;
 
     void Awake()
     {
@@ -34,6 +36,36 @@ public class HUDController : MonoBehaviour
             scaredTimerText.text = "0";
             scaredTimerText.gameObject.SetActive(false);
         }
+
+        Transform livesRoot = transform.Find("Lives");
+        if (livesRoot != null)
+        {
+            lifeIcons = new[]
+            {
+                livesRoot.Find("Life1")?.GetComponent<Image>(),
+                livesRoot.Find("Life2")?.GetComponent<Image>(),
+                livesRoot.Find("Life3")?.GetComponent<Image>()
+            };
+        }
+    }
+
+    public int Lives => lives;
+
+    public void ShowScaredTimer(int seconds)
+    {
+        if (scaredTimerText == null)
+            return;
+
+        scaredTimerText.gameObject.SetActive(true);
+        scaredTimerText.text = Mathf.Max(0, seconds).ToString();
+    }
+
+    public void HideScaredTimer()
+    {
+        if (scaredTimerText == null)
+            return;
+
+        scaredTimerText.gameObject.SetActive(false);
     }
 
     void Start()
@@ -55,6 +87,17 @@ public class HUDController : MonoBehaviour
         score += points;
         if (scoreText != null)
             scoreText.text = score.ToString("D6");
+    }
+
+    public bool LoseLife()
+    {
+        if (lives <= 0)
+            return false;
+
+        lives--;
+        if (lifeIcons != null && lives >= 0 && lives < lifeIcons.Length && lifeIcons[lives] != null)
+            lifeIcons[lives].enabled = false;
+        return lives > 0;
     }
 
     void ExitToStart()

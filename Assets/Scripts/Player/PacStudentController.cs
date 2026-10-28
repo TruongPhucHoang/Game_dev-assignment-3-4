@@ -11,6 +11,9 @@ public class PacStudentController : MonoBehaviour
     [SerializeField] AudioClip emptyMoveClip;
     [SerializeField] AudioClip wallHitClip;
     [SerializeField] AudioClip cherryEatClip;
+    [SerializeField] AudioClip deathClip;
+    [SerializeField] AudioClip ghostEatClip;
+    [SerializeField] AudioClip powerClip;
 
     KeyCode lastInput = KeyCode.None;
     KeyCode currentInput = KeyCode.None;
@@ -35,6 +38,10 @@ public class PacStudentController : MonoBehaviour
     bool holdingWall;
     bool bumping;
     bool bumpHandled;
+    bool control = true;
+    float deathLeft;
+    Vector3 spawnPoint;
+    ParticleSystem killParticle;
 
     void Awake()
     {
@@ -73,6 +80,14 @@ public class PacStudentController : MonoBehaviour
         }
 
         collisionDust = transform.Find("Collision_dust")?.GetComponent<ParticleSystem>();
+        killParticle = transform.Find("Kill_particle")?.GetComponent<ParticleSystem>();
+        if (killParticle != null)
+        {
+            var deathMain = killParticle.main;
+            deathMain.playOnAwake = false;
+            deathMain.simulationSpace = ParticleSystemSimulationSpace.World;
+            killParticle.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+        }
         if (collisionDust != null)
         {
             var main = collisionDust.main;
@@ -81,6 +96,7 @@ public class PacStudentController : MonoBehaviour
             collisionDust.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
         }
 
+        LevelRound.Ensure();
         StopMovingPresentation();
     }
 
@@ -94,6 +110,7 @@ public class PacStudentController : MonoBehaviour
         if (level != null && level.HasMap)
             MoveBody(level.CellCenter(level.WorldToCell(transform.position)));
 
+        spawnPoint = transform.position;
         FaceRightIdle();
         StopMovingPresentation();
         if (collisionDust != null)
@@ -102,6 +119,19 @@ public class PacStudentController : MonoBehaviour
 
     void Update()
     {
+        if (!control)
+        {
+            deathLeft -= Time.deltaTime;
+            if (deathLeft > 0f)
+                return;
+
+            if (hud != null && hud.Lives <= 0)
+                return;
+
+            Respawn();
+            return;
+        }
+
         ReadInput();
 
         if (tween.Active)
@@ -130,9 +160,18 @@ public class PacStudentController : MonoBehaviour
 
     void OnTriggerEnter2D(Collider2D other)
     {
+        if (!control)
+            return;
+
         if (other.GetComponent<PelletPickup>() != null)
         {
             CollectPellet(other.gameObject);
+            return;
+        }
+
+        if (other.GetComponent<PowerPill>() != null)
+        {
+            CollectPower(other.gameObject);
             return;
         }
 
@@ -140,6 +179,13 @@ public class PacStudentController : MonoBehaviour
         if (cherry != null)
         {
             CollectCherry(cherry);
+            return;
+        }
+
+        EnemyController ghost = other.GetComponent<EnemyController>();
+        if (ghost != null)
+        {
+            HitGhost(ghost);
             return;
         }
 
@@ -247,6 +293,83 @@ public class PacStudentController : MonoBehaviour
         AddScore(10);
     }
 
+    void CollectPower(GameObject pill)
+    {
+        if (level != null)
+            level.ClearPellet(level.WorldToCell(pill.transform.position));
+
+        Destroy(pill);
+        AddScore(50);
+        if (powerClip != null && wallAudio != null)
+            wallAudio.PlayOneShot(powerClip);
+        if (LevelRound.Instance != null)
+            LevelRound.Instance.BeginFright();
+    }
+
+    void HitGhost(EnemyController ghost)
+    {
+        if (ghost.IsDead)
+            return;
+
+        if (ghost.State == EnemyController.Mood.Scared || ghost.State == EnemyController.Mood.Recovering)
+        {
+            ghost.Kill();
+            AddScore(300);
+            if (ghostEatClip != null && wallAudio != null)
+                wallAudio.PlayOneShot(ghostEatClip);
+            return;
+        }
+
+        Die();
+    }
+
+    void Die()
+    {
+        control = false;
+        tween.Cancel();
+        bumping = false;
+        StopMovingPresentation();
+        if (LevelRound.Instance != null)
+            LevelRound.Instance.BeginDeathPause();
+
+        animator.speed = 1f;
+        animator.Play("Dead", 0, 0f);
+        animator.Update(0f);
+        deathLeft = 2.52f;
+        AnimatorStateInfo info = animator.GetCurrentAnimatorStateInfo(0);
+        if (info.IsName("Dead") && info.length > 0.05f)
+            deathLeft = info.length;
+
+        if (deathClip != null && wallAudio != null)
+            wallAudio.PlayOneShot(deathClip);
+
+        if (killParticle != null)
+        {
+            killParticle.transform.position = transform.position;
+            killParticle.Play();
+        }
+
+        if (hud != null)
+            hud.LoseLife();
+    }
+
+    void Respawn()
+    {
+        if (LevelRound.Instance != null)
+            LevelRound.Instance.ResetAfterDeath();
+
+        MoveBody(spawnPoint);
+        lastInput = KeyCode.None;
+        currentInput = KeyCode.None;
+        holdingWall = false;
+        bumping = false;
+        control = true;
+        FaceRightIdle();
+        StopMovingPresentation();
+        if (killParticle != null)
+            killParticle.Stop(true, ParticleSystemStopBehavior.StopEmitting);
+    }
+
     void CollectCherry(BonusCherry cherry)
     {
         if (!cherry.Consume())
@@ -293,6 +416,7 @@ public class PacStudentController : MonoBehaviour
             animator.Play(facingState, 0, 0f);
 
         AudioClip clip = eatingPellet ? pelletMoveClip : emptyMoveClip;
+        moveAudio.volume = eatingPellet ? 1f : 0.5f;
         if (clip != null)
         {
             if (moveAudio.clip != clip)
