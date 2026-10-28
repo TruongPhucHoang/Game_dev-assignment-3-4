@@ -149,7 +149,7 @@ public class LevelGenerator : MonoBehaviour
         return map;
     }
 
-    int[,] BuildFullMap(out int rows, out int cols)
+    protected virtual int[,] BuildFullMap(out int rows, out int cols)
     {
         int qRows = levelMap.GetLength(0);
         int qCols = levelMap.GetLength(1);
