@@ -40,6 +40,7 @@ public class LevelRound : MonoBehaviour
         music = FindAnyObjectByType<MusicController>();
         BindGhosts();
         EnemyController.SetAllCollisions(false);
+        InnovationChange.AttachIfInnovation();
     }
 
     void Start()
@@ -174,6 +175,7 @@ public class LevelRound : MonoBehaviour
         }
 
         EnemyController.ForEach(ghost => ghost.ResetHome());
+        InnovationChange.OnContinue();
         Paused = false;
         EnemyController.SetMovementLocked(false);
         EnemyController.SetAllCollisions(true);
