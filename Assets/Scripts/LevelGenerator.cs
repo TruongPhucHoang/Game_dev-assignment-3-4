@@ -393,6 +393,22 @@ public class LevelGenerator : MonoBehaviour
         return id == 5 || id == 6;
     }
 
+    public bool TryGetLevelRect(out Vector2 center, out Vector2 size)
+    {
+        center = Vector2.zero;
+        size = Vector2.zero;
+        if (fullMap == null || mapRows <= 0 || mapCols <= 0)
+            return false;
+
+        float minX = -0.5f * tileSize;
+        float maxX = (mapCols - 0.5f) * tileSize;
+        float maxY = 0.5f * tileSize;
+        float minY = -(mapRows - 0.5f) * tileSize;
+        center = new Vector2((minX + maxX) * 0.5f, (minY + maxY) * 0.5f);
+        size = new Vector2(maxX - minX, maxY - minY);
+        return true;
+    }
+
     static bool IsWall(int id)
     {
         return id == 1 || id == 2 || id == 3 || id == 4 || id == 7 || id == 8;

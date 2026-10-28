@@ -28598,6 +28598,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1889100002}
   - component: {fileID: 1889100003}
+  - component: {fileID: 1889100004}
   m_Layer: 0
   m_Name: Level
   m_TagString: Untagged
@@ -28653,6 +28654,23 @@ MonoBehaviour:
   Tile_Inside_wall: {fileID: 11400000, guid: b4b6505ed9e903246934b445b31dda77, type: 2}
   Tile_T_junction: {fileID: 11400000, guid: 25ec2d73e55ef174ea3bc1579e6b96d4, type: 2}
   Tile_Enemy_exit: {fileID: 11400000, guid: e82b1430c93d04f4ea88cbe7652b9988, type: 2}
+--- !u!114 &1889100004
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1889100001}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7c1e9a44b2d84f0e9a6c3d5b8e1f2047, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CherryController
+  cherrySprite: {fileID: 424483967485187399, guid: 88fc926fc927bd24cb3c67da8ccf9d12, type: 3}
+  respawnDelay: 5
+  tilesPerSecond: 3.5
+  cherryScale: 1.75
+  outsidePadding: 1
 --- !u!1 &1894420201
 GameObject:
   m_ObjectHideFlags: 0
