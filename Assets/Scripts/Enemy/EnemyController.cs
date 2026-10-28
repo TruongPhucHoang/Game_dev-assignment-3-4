@@ -22,11 +22,11 @@ public class EnemyController : MonoBehaviour
 
     public Mood State { get; private set; }
     public bool IsDead => State == Mood.Dead;
+    public Vector3 Home => home;
 
     Animator animator;
     CircleCollider2D hit;
     Vector3 home;
-    float deadLeft;
 
     public static void SetMovementLocked(bool locked)
     {
@@ -92,24 +92,6 @@ public class EnemyController : MonoBehaviour
         all.Remove(this);
     }
 
-    void Update()
-    {
-        if (LevelRound.Paused || State != Mood.Dead)
-            return;
-
-        deadLeft -= Time.deltaTime;
-        if (deadLeft > 0f)
-            return;
-
-        float scared = LevelRound.ScaredRemaining;
-        if (scared <= 0f)
-            PlayNormal();
-        else if (scared <= LevelRound.RecoverSeconds)
-            PlayRecovering();
-        else
-            PlayScared();
-    }
-
     public void ApplyFright(float remaining)
     {
         if (State == Mood.Dead)
@@ -137,15 +119,36 @@ public class EnemyController : MonoBehaviour
     public void Kill()
     {
         State = Mood.Dead;
-        deadLeft = 3f;
+        SetCollisionsEnabled(false);
         Play(DeadState);
+        if (LevelRound.Instance != null)
+            LevelRound.Instance.RefreshMusic();
+    }
+
+    public void ReviveAtHome()
+    {
+        transform.position = home;
+        float scared = LevelRound.ScaredRemaining;
+        if (scared <= 0f)
+            PlayNormal();
+        else if (scared <= LevelRound.RecoverSeconds)
+            PlayRecovering();
+        else
+            PlayScared();
+
+        SetCollisionsEnabled(true);
+        if (LevelRound.Instance != null)
+            LevelRound.Instance.RefreshMusic();
     }
 
     public void ResetHome()
     {
-        deadLeft = 0f;
         transform.position = home;
         PlayNormal();
+        SetCollisionsEnabled(true);
+        GhostController mover = GetComponent<GhostController>();
+        if (mover != null)
+            mover.OnResetHome();
     }
 
     void PlayNormal()
