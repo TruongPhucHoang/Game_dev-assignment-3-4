@@ -4,6 +4,7 @@ using UnityEngine;
 public class GhostController : MonoBehaviour
 {
     const float NormalSpeedScale = 0.9f;
+    static readonly Color RecoverTint = new Color(1f, 0f, 0f, 1f);
 
     static readonly Vector3Int[] Directions =
     {
@@ -15,6 +16,7 @@ public class GhostController : MonoBehaviour
 
     EnemyController agent;
     Animator animator;
+    SpriteRenderer sprite;
     LevelGenerator level;
     PacStudentController player;
     CellTween tween = new CellTween();
@@ -36,6 +38,7 @@ public class GhostController : MonoBehaviour
     {
         agent = GetComponent<EnemyController>();
         animator = GetComponent<Animator>();
+        sprite = GetComponent<SpriteRenderer>();
         number = NumberFromName(gameObject.name);
 
         Rigidbody2D body = GetComponent<Rigidbody2D>();
@@ -56,6 +59,8 @@ public class GhostController : MonoBehaviour
         tween.Cancel();
         hasStep = false;
         leftHouse = false;
+        if (sprite != null)
+            sprite.color = Color.white;
         if (level != null && level.HasMap)
             transform.position = level.CellCenter(level.WorldToCell(transform.position));
     }
@@ -67,14 +72,16 @@ public class GhostController : MonoBehaviour
         if (!ready)
             return;
 
-        if (!LevelRound.RoundStarted || LevelRound.Paused || EnemyController.MovementLocked)
-            return;
-
         if (agent != null && agent.IsDead)
         {
-            MoveDead();
+            HoldDeadClip();
+            if (LevelRound.RoundStarted && !LevelRound.Paused && !EnemyController.MovementLocked)
+                MoveDead();
             return;
         }
+
+        if (!LevelRound.RoundStarted || LevelRound.Paused || EnemyController.MovementLocked)
+            return;
 
         if (tween.Active)
         {
@@ -94,6 +101,34 @@ public class GhostController : MonoBehaviour
             return;
 
         BeginStep(cell, step);
+    }
+
+    void LateUpdate()
+    {
+        if (!ready || sprite == null || agent == null)
+            return;
+
+        if (agent.IsDead)
+        {
+            if (animator != null && !animator.GetCurrentAnimatorStateInfo(0).IsName("Enemy1_dead"))
+            {
+                animator.Play("Enemy1_dead", 0, 0f);
+                animator.Update(0f);
+            }
+
+            sprite.color = Color.white;
+            return;
+        }
+
+        if (agent.State == EnemyController.Mood.Recovering)
+        {
+            bool tinted = Mathf.FloorToInt(Time.time * 4f) % 2 == 0;
+            sprite.color = tinted ? RecoverTint : Color.white;
+            return;
+        }
+
+        if (sprite.color != Color.white)
+            sprite.color = Color.white;
     }
 
     bool TryPrepare()
@@ -189,6 +224,12 @@ public class GhostController : MonoBehaviour
         }
 
         transform.position += offset / distance * step;
+    }
+
+    void HoldDeadClip()
+    {
+        if (animator != null && !animator.GetCurrentAnimatorStateInfo(0).IsName("Enemy1_dead"))
+            animator.Play("Enemy1_dead", 0, 0f);
     }
 
     Vector3Int ChooseExit(Vector3Int cell)
