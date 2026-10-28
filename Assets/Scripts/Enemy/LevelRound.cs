@@ -14,6 +14,7 @@ public class LevelRound : MonoBehaviour
     MusicController music;
     float scaredLeft;
     bool returnToNormalMusic;
+    bool gameOver;
 
     public static void Ensure()
     {
@@ -109,6 +110,26 @@ public class LevelRound : MonoBehaviour
         EnemyController.ForEach(ghost => ghost.ApplyFright(scaredLeft));
         returnToNormalMusic = true;
         FollowMusic();
+    }
+
+    public void EndRound()
+    {
+        if (gameOver)
+            return;
+
+        gameOver = true;
+        Paused = true;
+        EnemyController.SetMovementLocked(true);
+        EnemyController.SetAllCollisions(false);
+
+        PacStudentController player = FindAnyObjectByType<PacStudentController>();
+        if (player != null)
+            player.FreezeForGameOver();
+
+        if (hud == null)
+            hud = FindAnyObjectByType<HUDController>();
+        if (hud != null)
+            hud.ShowGameOver();
     }
 
     public void BeginDeathPause()

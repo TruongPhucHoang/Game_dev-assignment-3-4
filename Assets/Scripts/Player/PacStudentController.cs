@@ -40,6 +40,7 @@ public class PacStudentController : MonoBehaviour
     bool bumpHandled;
     bool control = true;
     bool roundReady;
+    bool ended;
     float deathLeft;
     Vector3 spawnPoint;
     ParticleSystem killParticle;
@@ -122,6 +123,9 @@ public class PacStudentController : MonoBehaviour
 
     void Update()
     {
+        if (ended)
+            return;
+
         if (!LevelRound.RoundStarted)
             return;
 
@@ -140,7 +144,11 @@ public class PacStudentController : MonoBehaviour
                 return;
 
             if (hud != null && hud.Lives <= 0)
+            {
+                if (LevelRound.Instance != null)
+                    LevelRound.Instance.EndRound();
                 return;
+            }
 
             Respawn();
             return;
@@ -305,6 +313,19 @@ public class PacStudentController : MonoBehaviour
 
         Destroy(pellet);
         AddScore(10);
+        if (level != null && level.ConsumePellet() && LevelRound.Instance != null)
+            LevelRound.Instance.EndRound();
+    }
+
+    public void FreezeForGameOver()
+    {
+        ended = true;
+        control = false;
+        tween.Cancel();
+        bumping = false;
+        if (bodyCollider != null)
+            bodyCollider.enabled = false;
+        StopMovingPresentation();
     }
 
     void CollectPower(GameObject pill)

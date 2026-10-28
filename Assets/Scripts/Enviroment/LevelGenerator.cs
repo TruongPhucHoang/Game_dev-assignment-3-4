@@ -44,6 +44,7 @@ public class LevelGenerator : MonoBehaviour
     Transform _pickups;
     readonly Dictionary<int, Tile> _tiles = new Dictionary<int, Tile>();
     bool _generated;
+    int pelletsLeft;
 
     public bool HasMap => fullMap != null;
     public float TileSize => tileSize;
@@ -70,6 +71,7 @@ public class LevelGenerator : MonoBehaviour
         fullMap = full;
         mapRows = rows;
         mapCols = cols;
+        pelletsLeft = 0;
         for (int r = 0; r < rows; r++)
         {
             for (int c = 0; c < cols; c++)
@@ -248,7 +250,10 @@ public class LevelGenerator : MonoBehaviour
             if (id == 6)
                 go.AddComponent<PowerPill>();
             else
+            {
                 go.AddComponent<PelletPickup>();
+                pelletsLeft++;
+            }
         }
     }
 
@@ -459,6 +464,12 @@ public class LevelGenerator : MonoBehaviour
     {
         int id = TileId(cell);
         return id == 5 || id == 6;
+    }
+
+    public bool ConsumePellet()
+    {
+        pelletsLeft = Mathf.Max(0, pelletsLeft - 1);
+        return pelletsLeft == 0;
     }
 
     public void ClearPellet(Vector3Int cell)

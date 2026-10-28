@@ -15,6 +15,7 @@ public class HUDController : MonoBehaviour
     [SerializeField] Text levelNameText;
     [SerializeField] string startSceneName = "StartScene";
     [SerializeField] string levelName = "Level 1";
+    [SerializeField] string highScoreId = "Level1";
 
     CanvasScaler scaler;
     int score;
@@ -111,6 +112,45 @@ public class HUDController : MonoBehaviour
             timerText.text = "00:00:00";
     }
 
+    public void PauseGameTimer()
+    {
+        timing = false;
+    }
+
+    public float GameTimeSeconds => gameTime;
+
+    public void ShowGameOver()
+    {
+        timing = false;
+        HighScoreRecord.SaveIfBetter(highScoreId, score, gameTime);
+        EnsureCountdown();
+        Button[] buttons = GetComponentsInChildren<Button>(true);
+        for (int i = 0; i < buttons.Length; i++)
+            buttons[i].interactable = false;
+
+        if (countdownOverlay != null)
+        {
+            countdownOverlay.SetActive(true);
+            countdownOverlay.transform.SetAsLastSibling();
+        }
+
+        if (countdownText != null)
+        {
+            countdownText.fontSize = 140;
+            countdownText.text = "Game Over";
+            countdownText.gameObject.SetActive(true);
+            countdownText.transform.SetAsLastSibling();
+        }
+
+        StartCoroutine(LeaveAfterGameOver());
+    }
+
+    IEnumerator LeaveAfterGameOver()
+    {
+        yield return new WaitForSeconds(3f);
+        SceneManager.LoadScene(startSceneName);
+    }
+
     void OnRectTransformDimensionsChange()
     {
         ApplyAspectFit();
@@ -132,6 +172,8 @@ public class HUDController : MonoBehaviour
             return false;
 
         lives--;
+        if (lives <= 0)
+            timing = false;
         if (lifeIcons != null && lives >= 0 && lives < lifeIcons.Length && lifeIcons[lives] != null)
             lifeIcons[lives].enabled = false;
         return lives > 0;
