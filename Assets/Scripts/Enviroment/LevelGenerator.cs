@@ -36,14 +36,27 @@ public class LevelGenerator : MonoBehaviour
     [SerializeField] Tile Tile_Enemy_exit;
 
     int[,] levelMap;
+    int[,] fullMap;
+    int mapRows;
+    int mapCols;
+    Grid grid;
     Tilemap _walls;
     Transform _pickups;
     readonly Dictionary<int, Tile> _tiles = new Dictionary<int, Tile>();
     bool _generated;
+    int pelletsLeft;
 
-    void Start()
+    public bool HasMap => fullMap != null;
+    public float TileSize => tileSize;
+
+    void Awake()
     {
         GenerateLevel();
+    }
+
+    protected void AllowRebuild()
+    {
+        _generated = false;
     }
 
     [ContextMenu("Rebuild Level")]
@@ -60,6 +73,10 @@ public class LevelGenerator : MonoBehaviour
         ClearGenerated();
 
         int[,] full = BuildFullMap(out int rows, out int cols);
+        fullMap = full;
+        mapRows = rows;
+        mapCols = cols;
+        pelletsLeft = 0;
         for (int r = 0; r < rows; r++)
         {
             for (int c = 0; c < cols; c++)
@@ -67,6 +84,7 @@ public class LevelGenerator : MonoBehaviour
         }
 
         ApplyWallRotations(full, rows, cols);
+        BuildWallTriggers(full, rows, cols);
         FitCamera(rows, cols);
     }
 
@@ -136,7 +154,7 @@ public class LevelGenerator : MonoBehaviour
         return map;
     }
 
-    int[,] BuildFullMap(out int rows, out int cols)
+    protected virtual int[,] BuildFullMap(out int rows, out int cols)
     {
         int qRows = levelMap.GetLength(0);
         int qCols = levelMap.GetLength(1);
@@ -228,6 +246,20 @@ public class LevelGenerator : MonoBehaviour
             var anim = go.AddComponent<Animator>();
             anim.runtimeAnimatorController = controller;
         }
+
+        if (id == 5 || id == 6)
+        {
+            var pickup = go.AddComponent<CircleCollider2D>();
+            pickup.isTrigger = true;
+            pickup.radius = tileSize * (id == 6 ? 0.4f : 0.3f);
+            if (id == 6)
+                go.AddComponent<PowerPill>();
+            else
+            {
+                go.AddComponent<PelletPickup>();
+                pelletsLeft++;
+            }
+        }
     }
 
     void EnsureGrid()
@@ -236,6 +268,7 @@ public class LevelGenerator : MonoBehaviour
         if (grid == null)
             grid = gameObject.AddComponent<Grid>();
         grid.cellSize = new Vector3(tileSize, tileSize, 1f);
+        this.grid = grid;
 
         _walls = transform.Find("Walls")?.GetComponent<Tilemap>();
         if (_walls == null)
@@ -288,6 +321,38 @@ public class LevelGenerator : MonoBehaviour
             }
         }
 
+        Transform triggers = transform.Find("WallTriggers");
+        if (triggers != null)
+        {
+            if (Application.isPlaying) Destroy(triggers.gameObject);
+            else DestroyImmediate(triggers.gameObject);
+        }
+    }
+
+    void BuildWallTriggers(int[,] map, int rows, int cols)
+    {
+        var root = new GameObject("WallTriggers");
+        root.transform.SetParent(transform, false);
+        root.transform.localPosition = Vector3.zero;
+
+        for (int r = 0; r < rows; r++)
+        {
+            for (int c = 0; c < cols; c++)
+            {
+                if (!IsWall(map[r, c]))
+                    continue;
+
+                var cell = new Vector3Int(c, -r, 0);
+                var go = new GameObject("WallTrigger");
+                go.transform.SetParent(root.transform, false);
+                go.transform.position = CellCenter(cell);
+
+                var box = go.AddComponent<BoxCollider2D>();
+                box.isTrigger = true;
+                box.size = new Vector2(tileSize * 0.92f, tileSize * 0.92f);
+                go.AddComponent<WallTrigger>();
+            }
+        }
     }
 
     Tile GetTile(int id, Sprite sprite)
@@ -343,6 +408,107 @@ public class LevelGenerator : MonoBehaviour
             case 8: return Enemy_exit;
             default: return null;
         }
+    }
+
+    public Vector3Int WorldToCell(Vector3 world)
+    {
+        if (grid == null)
+            return Vector3Int.zero;
+        return grid.WorldToCell(world);
+    }
+
+    public Vector3 CellCenter(Vector3Int cell)
+    {
+        if (grid == null)
+            return new Vector3(cell.x + 0.5f, cell.y + 0.5f, 0f);
+        return grid.GetCellCenterWorld(cell);
+    }
+
+    public int TileId(Vector3Int cell)
+    {
+        if (fullMap == null)
+            return -1;
+        int row = -cell.y;
+        int col = cell.x;
+        if (row < 0 || col < 0 || row >= mapRows || col >= mapCols)
+            return -1;
+        return fullMap[row, col];
+    }
+
+    public bool IsWalkableForPacStudent(Vector3Int cell)
+    {
+        if (mapCols > 1 && (cell.x == 0 || cell.x == mapCols - 1))
+            return false;
+
+        int id = TileId(cell);
+        return id == 0 || id == 5 || id == 6;
+    }
+
+    public bool TryTunnelWarp(Vector3Int from, Vector3Int step, out Vector3Int destination)
+    {
+        destination = from;
+        if (mapCols <= 2 || step.x == 0)
+            return false;
+
+        bool exitLeft = step.x < 0 && from.x == 1;
+        bool exitRight = step.x > 0 && from.x == mapCols - 2;
+        if (!exitLeft && !exitRight)
+            return false;
+
+        int id = TileId(from);
+        if (id != 0 && id != 5 && id != 6)
+            return false;
+
+        int arriveX = exitLeft ? mapCols - 2 : 1;
+        destination = new Vector3Int(arriveX, from.y, 0);
+        int arriveId = TileId(destination);
+        return arriveId == 0 || arriveId == 5 || arriveId == 6;
+    }
+
+    public bool IsPellet(Vector3Int cell)
+    {
+        int id = TileId(cell);
+        return id == 5 || id == 6;
+    }
+
+    public bool ConsumePellet()
+    {
+        pelletsLeft = Mathf.Max(0, pelletsLeft - 1);
+        return pelletsLeft == 0;
+    }
+
+    public void ClearPellet(Vector3Int cell)
+    {
+        if (fullMap == null)
+            return;
+
+        int row = -cell.y;
+        int col = cell.x;
+        if (row < 0 || col < 0 || row >= mapRows || col >= mapCols)
+            return;
+        if (fullMap[row, col] == 5 || fullMap[row, col] == 6)
+            fullMap[row, col] = 0;
+    }
+
+    public bool IsWallCell(Vector3Int cell)
+    {
+        return IsWall(TileId(cell));
+    }
+
+    public bool TryGetLevelRect(out Vector2 center, out Vector2 size)
+    {
+        center = Vector2.zero;
+        size = Vector2.zero;
+        if (fullMap == null || mapRows <= 0 || mapCols <= 0)
+            return false;
+
+        float minX = -0.5f * tileSize;
+        float maxX = (mapCols - 0.5f) * tileSize;
+        float maxY = 0.5f * tileSize;
+        float minY = -(mapRows - 0.5f) * tileSize;
+        center = new Vector2((minX + maxX) * 0.5f, (minY + maxY) * 0.5f);
+        size = new Vector2(maxX - minX, maxY - minY);
+        return true;
     }
 
     static bool IsWall(int id)
@@ -496,4 +662,16 @@ public class LevelGenerator : MonoBehaviour
             maxY = Mathf.Max(maxY, p.y + hy);
         }
     }
+}
+
+public class WallTrigger : MonoBehaviour
+{
+}
+
+public class PelletPickup : MonoBehaviour
+{
+}
+
+public class PowerPill : MonoBehaviour
+{
 }
