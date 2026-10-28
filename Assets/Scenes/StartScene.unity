@@ -240,6 +240,7 @@ MonoBehaviour:
   level1Button: {fileID: 100125}
   level2Button: {fileID: 100135}
   mainSceneName: level_1
+  innovationSceneName: InnovationScene
 --- !u!1 &100011
 GameObject:
   m_ObjectHideFlags: 0
