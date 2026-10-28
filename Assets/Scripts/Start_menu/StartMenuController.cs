@@ -33,6 +33,25 @@ public class StartMenuController : MonoBehaviour
     {
         WireButton(level1Button, LoadLevel1);
         WireButton(level2Button, null);
+        ShowRecord(level1Button, "Level1");
+        ShowRecord(level2Button, "Level2");
+    }
+
+    static void ShowRecord(Button button, string levelKey)
+    {
+        if (button == null)
+            return;
+
+        HighScoreRecord.Load(levelKey, out int score, out float time);
+        Text[] labels = button.GetComponentsInChildren<Text>(true);
+        for (int i = 0; i < labels.Length; i++)
+        {
+            string name = labels[i].gameObject.name;
+            if (name.Contains("HighTime"))
+                labels[i].text = HighScoreRecord.FormatTime(time);
+            else if (name.Contains("HighScore"))
+                labels[i].text = score.ToString("000000");
+        }
     }
 
     void WireButton(Button button, UnityEngine.Events.UnityAction onClick)
