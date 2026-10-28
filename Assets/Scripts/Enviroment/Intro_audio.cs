@@ -9,6 +9,7 @@ public class MusicController : MonoBehaviour
     [SerializeField] private AudioClip normalMusic;
     [SerializeField] private AudioClip scaredMusic;
     [SerializeField] private AudioClip deadMusic;
+    [SerializeField] bool autoPlayOnStart = true;
 
     AudioSource audioSource;
     bool moodHeld;
@@ -22,7 +23,29 @@ public class MusicController : MonoBehaviour
 
     void Start()
     {
-        StartCoroutine(PlayMusicSequence());
+        if (autoPlayOnStart)
+            StartCoroutine(PlayMusicSequence());
+    }
+
+    public void PlayIntro()
+    {
+        if (audioSource == null)
+            audioSource = GetComponent<AudioSource>();
+        if (audioSource == null || introMusic == null)
+            return;
+
+        audioSource.Stop();
+        audioSource.clip = introMusic;
+        audioSource.loop = false;
+        audioSource.Play();
+    }
+
+    public void StopIntro()
+    {
+        if (audioSource == null)
+            return;
+        if (audioSource.clip == introMusic)
+            audioSource.Stop();
     }
 
     public void PlayNormal()

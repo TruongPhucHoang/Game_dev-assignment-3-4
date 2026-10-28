@@ -24,12 +24,24 @@ public class EnemyController : MonoBehaviour
     public bool IsDead => State == Mood.Dead;
 
     Animator animator;
+    CircleCollider2D hit;
     Vector3 home;
     float deadLeft;
 
     public static void SetMovementLocked(bool locked)
     {
         MovementLocked = locked;
+    }
+
+    public static void SetAllCollisions(bool enabled)
+    {
+        ForEach(ghost => ghost.SetCollisionsEnabled(enabled));
+    }
+
+    public void SetCollisionsEnabled(bool enabled)
+    {
+        if (hit != null)
+            hit.enabled = enabled;
     }
 
     public static void ForEach(System.Action<EnemyController> action)
@@ -65,7 +77,7 @@ public class EnemyController : MonoBehaviour
 
         home = transform.position;
         float scale = Mathf.Max(0.01f, Mathf.Abs(transform.lossyScale.x));
-        var hit = GetComponent<CircleCollider2D>();
+        hit = GetComponent<CircleCollider2D>();
         if (hit == null)
             hit = gameObject.AddComponent<CircleCollider2D>();
         hit.isTrigger = true;

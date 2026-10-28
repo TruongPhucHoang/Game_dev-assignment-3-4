@@ -28136,6 +28136,7 @@ MonoBehaviour:
   normalMusic: {fileID: 8300000, guid: 5baa6caac2efa134ab7756726b5a2cf0, type: 3}
   scaredMusic: {fileID: 8300000, guid: 16db6b13d94ae63459a239222c366334, type: 3}
   deadMusic: {fileID: 8300000, guid: 9f973027b11150a4b9f6524a72e024cc, type: 3}
+  autoPlayOnStart: 0
 --- !u!82 &1838579780
 AudioSource:
   m_ObjectHideFlags: 0

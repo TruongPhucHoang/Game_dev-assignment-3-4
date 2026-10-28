@@ -39,6 +39,7 @@ public class PacStudentController : MonoBehaviour
     bool bumping;
     bool bumpHandled;
     bool control = true;
+    bool roundReady;
     float deathLeft;
     Vector3 spawnPoint;
     ParticleSystem killParticle;
@@ -97,6 +98,8 @@ public class PacStudentController : MonoBehaviour
         }
 
         LevelRound.Ensure();
+        control = false;
+        bodyCollider.enabled = false;
         StopMovingPresentation();
     }
 
@@ -119,6 +122,17 @@ public class PacStudentController : MonoBehaviour
 
     void Update()
     {
+        if (!LevelRound.RoundStarted)
+            return;
+
+        if (!roundReady)
+        {
+            roundReady = true;
+            control = true;
+            if (bodyCollider != null)
+                bodyCollider.enabled = true;
+        }
+
         if (!control)
         {
             deathLeft -= Time.deltaTime;
@@ -160,7 +174,7 @@ public class PacStudentController : MonoBehaviour
 
     void OnTriggerEnter2D(Collider2D other)
     {
-        if (!control)
+        if (!LevelRound.RoundStarted || !control)
             return;
 
         if (other.GetComponent<PelletPickup>() != null)

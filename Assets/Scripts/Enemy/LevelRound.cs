@@ -7,6 +7,7 @@ public class LevelRound : MonoBehaviour
 
     public static LevelRound Instance { get; private set; }
     public static bool Paused { get; private set; }
+    public static bool RoundStarted { get; private set; }
     public static float ScaredRemaining { get; private set; }
 
     HUDController hud;
@@ -30,9 +31,44 @@ public class LevelRound : MonoBehaviour
     void Awake()
     {
         Instance = this;
+        RoundStarted = false;
+        Paused = true;
+        EnemyController.SetMovementLocked(true);
         hud = FindAnyObjectByType<HUDController>();
         music = FindAnyObjectByType<MusicController>();
         BindGhosts();
+        EnemyController.SetAllCollisions(false);
+    }
+
+    void Start()
+    {
+        if (hud == null)
+            hud = FindAnyObjectByType<HUDController>();
+        if (music == null)
+            music = FindAnyObjectByType<MusicController>();
+
+        BindGhosts();
+        EnemyController.SetAllCollisions(false);
+        if (music != null)
+            music.PlayIntro();
+        if (hud != null)
+            hud.BeginCountdown(FinishCountdown);
+    }
+
+    void FinishCountdown()
+    {
+        RoundStarted = true;
+        Paused = false;
+        EnemyController.SetMovementLocked(false);
+        EnemyController.SetAllCollisions(true);
+        if (music != null)
+        {
+            music.StopIntro();
+            music.PlayNormal();
+        }
+
+        if (hud != null)
+            hud.StartGameTimer();
     }
 
     void Update()
