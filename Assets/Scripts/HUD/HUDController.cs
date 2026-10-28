@@ -15,6 +15,7 @@ public class HUDController : MonoBehaviour
     [SerializeField] string levelName = "Level 1";
 
     CanvasScaler scaler;
+    int score;
 
     void Awake()
     {
@@ -44,6 +45,16 @@ public class HUDController : MonoBehaviour
     void OnRectTransformDimensionsChange()
     {
         ApplyAspectFit();
+    }
+
+    public void AddPoints(int points)
+    {
+        if (points <= 0)
+            return;
+
+        score += points;
+        if (scoreText != null)
+            scoreText.text = score.ToString("D6");
     }
 
     void ExitToStart()

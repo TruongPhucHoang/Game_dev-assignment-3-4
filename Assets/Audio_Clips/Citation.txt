@@ -9,3 +9,4 @@ SFX_Explosion_14.wav by jalastram -- https://freesound.org/s/317767/ -- License:
 Game Over 08.wav by LilMati -- https://freesound.org/s/524741/ -- License: Creative Commons 0 (game over)
 Ping.wav by edschaefer -- https://freesound.org/s/341871/ -- License: Creative Commons 0 (eat a pellet)
 EH CRASH DRUM5.wav by likeclockwork -- https://freesound.org/s/168415/ -- License: Creative Commons 0 (wall crash)
+OKAY! by Scrampunk -- https://freesound.org/s/345299/ -- License: Attribution 4.0 (Bonus_score_got)

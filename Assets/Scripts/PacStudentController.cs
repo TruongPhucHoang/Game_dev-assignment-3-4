@@ -10,6 +10,7 @@ public class PacStudentController : MonoBehaviour
     [SerializeField] AudioClip pelletMoveClip;
     [SerializeField] AudioClip emptyMoveClip;
     [SerializeField] AudioClip wallHitClip;
+    [SerializeField] AudioClip cherryEatClip;
 
     KeyCode lastInput = KeyCode.None;
     KeyCode currentInput = KeyCode.None;
@@ -18,6 +19,7 @@ public class PacStudentController : MonoBehaviour
     Animator animator;
     AudioSource moveAudio;
     AudioSource wallAudio;
+    HUDController hud;
     Rigidbody2D body;
     CircleCollider2D bodyCollider;
     ParticleSystem dust;
@@ -84,6 +86,7 @@ public class PacStudentController : MonoBehaviour
 
     void Start()
     {
+        hud = FindAnyObjectByType<HUDController>();
         level = FindAnyObjectByType<LevelGenerator>();
         if (level != null)
             level.GenerateLevel();
@@ -127,6 +130,19 @@ public class PacStudentController : MonoBehaviour
 
     void OnTriggerEnter2D(Collider2D other)
     {
+        if (other.GetComponent<PelletPickup>() != null)
+        {
+            CollectPellet(other.gameObject);
+            return;
+        }
+
+        BonusCherry cherry = other.GetComponent<BonusCherry>();
+        if (cherry != null)
+        {
+            CollectCherry(cherry);
+            return;
+        }
+
         if (!bumping || bumpHandled || other.GetComponent<WallTrigger>() == null)
             return;
 
@@ -220,6 +236,33 @@ public class PacStudentController : MonoBehaviour
         MoveBody(bumpOrigin);
         BeginMovingPresentation(step, false);
         return true;
+    }
+
+    void CollectPellet(GameObject pellet)
+    {
+        if (level != null)
+            level.ClearPellet(level.WorldToCell(pellet.transform.position));
+
+        Destroy(pellet);
+        AddScore(10);
+    }
+
+    void CollectCherry(BonusCherry cherry)
+    {
+        if (!cherry.Consume())
+            return;
+
+        if (cherryEatClip != null && wallAudio != null)
+            wallAudio.PlayOneShot(cherryEatClip);
+        AddScore(100);
+    }
+
+    void AddScore(int points)
+    {
+        if (hud == null)
+            hud = FindAnyObjectByType<HUDController>();
+        if (hud != null)
+            hud.AddPoints(points);
     }
 
     void PlayWallHit(Vector3 point)

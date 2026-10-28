@@ -239,6 +239,14 @@ public class LevelGenerator : MonoBehaviour
             var anim = go.AddComponent<Animator>();
             anim.runtimeAnimatorController = controller;
         }
+
+        if (id == 5)
+        {
+            var pellet = go.AddComponent<CircleCollider2D>();
+            pellet.isTrigger = true;
+            pellet.radius = tileSize * 0.3f;
+            go.AddComponent<PelletPickup>();
+        }
     }
 
     void EnsureGrid()
@@ -450,6 +458,19 @@ public class LevelGenerator : MonoBehaviour
         return id == 5 || id == 6;
     }
 
+    public void ClearPellet(Vector3Int cell)
+    {
+        if (fullMap == null)
+            return;
+
+        int row = -cell.y;
+        int col = cell.x;
+        if (row < 0 || col < 0 || row >= mapRows || col >= mapCols)
+            return;
+        if (fullMap[row, col] == 5)
+            fullMap[row, col] = 0;
+    }
+
     public bool IsWallCell(Vector3Int cell)
     {
         return IsWall(TileId(cell));
@@ -625,5 +646,9 @@ public class LevelGenerator : MonoBehaviour
 }
 
 public class WallTrigger : MonoBehaviour
+{
+}
+
+public class PelletPickup : MonoBehaviour
 {
 }

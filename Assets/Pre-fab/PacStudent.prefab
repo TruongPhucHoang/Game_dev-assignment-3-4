@@ -248,6 +248,7 @@ MonoBehaviour:
   pelletMoveClip: {fileID: 8300000, guid: d3f744cdef104e84793d69b376dfc7e7, type: 3}
   emptyMoveClip: {fileID: 8300000, guid: a871fcf3179acf94ebcf5bccba17d7f8, type: 3}
   wallHitClip: {fileID: 8300000, guid: 96c5c44907ac13b49a692c8b4518b09b, type: 3}
+  cherryEatClip: {fileID: 8300000, guid: 5f32a97558763f046af40450131dfd29, type: 3}
 --- !u!50 &5896578426360959444
 Rigidbody2D:
   serializedVersion: 5

@@ -85,7 +85,20 @@ public class CherryController : MonoBehaviour
         renderer.sortingOrder = 100;
         renderer.maskInteraction = SpriteMaskInteraction.VisibleInsideMask;
 
+        var hit = cherry.AddComponent<CircleCollider2D>();
+        hit.isTrigger = true;
+        hit.radius = 0.3f;
+        cherry.AddComponent<BonusCherry>().Init(this);
+
         moving = true;
+    }
+
+    public void Eat(BonusCherry bonus)
+    {
+        if (!moving || cherry == null || bonus == null || bonus.gameObject != cherry)
+            return;
+
+        DestroyCherry();
     }
 
     void DestroyCherry()
@@ -167,5 +180,27 @@ public class CherryController : MonoBehaviour
             t = Mathf.Min(t, (minY - origin.y) / dir.y);
 
         return t;
+    }
+}
+
+public class BonusCherry : MonoBehaviour
+{
+    CherryController owner;
+    bool eaten;
+
+    public void Init(CherryController controller)
+    {
+        owner = controller;
+    }
+
+    public bool Consume()
+    {
+        if (eaten)
+            return false;
+
+        eaten = true;
+        if (owner != null)
+            owner.Eat(this);
+        return true;
     }
 }
