@@ -4,6 +4,13 @@ using UnityEngine;
 public class InnovationMap : LevelGenerator
 {
     const float PowerPelletChance = 0.02f;
+
+    public void Rebuild()
+    {
+        AllowRebuild();
+        GenerateLevel();
+    }
+
     protected override int[,] BuildFullMap(out int rows, out int cols)
     {
         int[,] map = base.BuildFullMap(out rows, out cols);

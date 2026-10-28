@@ -330,6 +330,26 @@ public class PacStudentController : MonoBehaviour
         StopMovingPresentation();
     }
 
+    public void ResumeAfterContinue()
+    {
+        ended = false;
+        control = true;
+        tween.Cancel();
+        bumping = false;
+        holdingWall = false;
+        lastInput = KeyCode.None;
+        currentInput = KeyCode.None;
+        if (level != null && level.HasMap)
+            MoveBody(level.CellCenter(level.WorldToCell(spawnPoint)));
+        else
+            MoveBody(spawnPoint);
+        spawnPoint = transform.position;
+        FaceRightIdle();
+        StopMovingPresentation();
+        if (bodyCollider != null)
+            bodyCollider.enabled = true;
+    }
+
     void CollectPower(GameObject pill)
     {
         if (level != null)

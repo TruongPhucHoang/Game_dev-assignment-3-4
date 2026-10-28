@@ -54,6 +54,11 @@ public class LevelGenerator : MonoBehaviour
         GenerateLevel();
     }
 
+    protected void AllowRebuild()
+    {
+        _generated = false;
+    }
+
     [ContextMenu("Rebuild Level")]
     public void GenerateLevel()
     {
