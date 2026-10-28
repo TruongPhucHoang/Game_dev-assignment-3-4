@@ -146,6 +146,9 @@ public class EnemyController : MonoBehaviour
         deadLeft = 0f;
         transform.position = home;
         PlayNormal();
+        GhostController mover = GetComponent<GhostController>();
+        if (mover != null)
+            mover.OnResetHome();
     }
 
     void PlayNormal()

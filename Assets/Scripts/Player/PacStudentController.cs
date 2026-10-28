@@ -7,6 +7,8 @@ using UnityEngine.InputSystem;
 public class PacStudentController : MonoBehaviour
 {
     [SerializeField] float tilesPerSecond = 5f;
+
+    public float TilesPerSecond => tilesPerSecond;
     [SerializeField] AudioClip pelletMoveClip;
     [SerializeField] AudioClip emptyMoveClip;
     [SerializeField] AudioClip wallHitClip;

@@ -157,8 +157,13 @@ public class LevelRound : MonoBehaviour
         for (int i = 1; i <= 4; i++)
         {
             GameObject ghost = GameObject.Find("Ghost" + i);
-            if (ghost != null && ghost.GetComponent<EnemyController>() == null)
+            if (ghost == null)
+                continue;
+
+            if (ghost.GetComponent<EnemyController>() == null)
                 ghost.AddComponent<EnemyController>();
+            if (ghost.GetComponent<GhostController>() == null)
+                ghost.AddComponent<GhostController>();
         }
     }
 
