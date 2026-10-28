@@ -8,7 +8,7 @@ public class StartMenuController : MonoBehaviour
 {
     [SerializeField] Button level1Button;
     [SerializeField] Button level2Button;
-    [SerializeField] string mainSceneName = "Main";
+    [SerializeField] string mainSceneName = "level_1";
 
     AudioSource clickAudio;
     AudioClip clickClip;

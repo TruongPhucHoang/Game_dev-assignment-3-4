@@ -239,7 +239,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::StartMenuController
   level1Button: {fileID: 100125}
   level2Button: {fileID: 100135}
-  mainSceneName: Main
+  mainSceneName: level_1
 --- !u!1 &100011
 GameObject:
   m_ObjectHideFlags: 0
