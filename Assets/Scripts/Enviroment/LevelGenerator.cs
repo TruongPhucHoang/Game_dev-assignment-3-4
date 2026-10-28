@@ -54,6 +54,11 @@ public class LevelGenerator : MonoBehaviour
         GenerateLevel();
     }
 
+    protected void AllowRebuild()
+    {
+        _generated = false;
+    }
+
     [ContextMenu("Rebuild Level")]
     public void GenerateLevel()
     {
@@ -149,7 +154,7 @@ public class LevelGenerator : MonoBehaviour
         return map;
     }
 
-    int[,] BuildFullMap(out int rows, out int cols)
+    protected virtual int[,] BuildFullMap(out int rows, out int cols)
     {
         int qRows = levelMap.GetLength(0);
         int qCols = levelMap.GetLength(1);

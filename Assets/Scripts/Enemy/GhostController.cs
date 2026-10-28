@@ -201,7 +201,7 @@ public class GhostController : MonoBehaviour
 
     float CurrentTilesPerSecond()
     {
-        float normal = NormalTilesPerSecond();
+        float normal = NormalTilesPerSecond() * InnovationChange.SpeedScale;
         if (agent != null && agent.State != EnemyController.Mood.Normal)
             return normal * 0.5f;
         return normal;

@@ -15,6 +15,7 @@ public class LevelRound : MonoBehaviour
     float scaredLeft;
     bool returnToNormalMusic;
     bool gameOver;
+    bool choosing;
 
     public static void Ensure()
     {
@@ -39,6 +40,7 @@ public class LevelRound : MonoBehaviour
         music = FindAnyObjectByType<MusicController>();
         BindGhosts();
         EnemyController.SetAllCollisions(false);
+        InnovationChange.AttachIfInnovation();
     }
 
     void Start()
@@ -114,22 +116,72 @@ public class LevelRound : MonoBehaviour
 
     public void EndRound()
     {
-        if (gameOver)
+        if (gameOver || choosing)
             return;
+
+        if (hud == null)
+            hud = FindAnyObjectByType<HUDController>();
+
+        InnovationMap innovation = FindAnyObjectByType<InnovationMap>();
+        if (innovation != null && hud != null && hud.Lives > 0)
+        {
+            choosing = true;
+            Paused = true;
+            EnemyController.SetMovementLocked(true);
+            EnemyController.SetAllCollisions(false);
+            PacStudentController player = FindAnyObjectByType<PacStudentController>();
+            if (player != null)
+                player.FreezeForGameOver();
+            hud.ShowContinueChoice(SaveAndLeave, () => ContinueRun(innovation));
+            return;
+        }
 
         gameOver = true;
         Paused = true;
         EnemyController.SetMovementLocked(true);
         EnemyController.SetAllCollisions(false);
 
-        PacStudentController player = FindAnyObjectByType<PacStudentController>();
-        if (player != null)
-            player.FreezeForGameOver();
+        PacStudentController dying = FindAnyObjectByType<PacStudentController>();
+        if (dying != null)
+            dying.FreezeForGameOver();
 
-        if (hud == null)
-            hud = FindAnyObjectByType<HUDController>();
         if (hud != null)
             hud.ShowGameOver();
+    }
+
+    void SaveAndLeave()
+    {
+        if (hud != null)
+            hud.SaveAndLeave();
+    }
+
+    void ContinueRun(InnovationMap innovation)
+    {
+        choosing = false;
+        if (innovation != null)
+            innovation.Rebuild();
+
+        PacStudentController player = FindAnyObjectByType<PacStudentController>();
+        if (player != null)
+            player.ResumeAfterContinue();
+
+        scaredLeft = 0f;
+        ScaredRemaining = 0f;
+        if (hud != null)
+        {
+            hud.HideScaredTimer();
+            hud.HideContinueChoice();
+            hud.ResumeTimer();
+        }
+
+        EnemyController.ForEach(ghost => ghost.ResetHome());
+        InnovationChange.OnContinue();
+        Paused = false;
+        EnemyController.SetMovementLocked(false);
+        EnemyController.SetAllCollisions(true);
+        returnToNormalMusic = false;
+        if (music != null)
+            music.PlayNormal();
     }
 
     public void BeginDeathPause()

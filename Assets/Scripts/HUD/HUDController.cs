@@ -23,6 +23,9 @@ public class HUDController : MonoBehaviour
     Image[] lifeIcons;
     GameObject countdownOverlay;
     Text countdownText;
+    Text continueTitle;
+    Button saveAndLeaveButton;
+    Button continueButton;
     float gameTime;
     bool timing;
     static Sprite overlaySprite;
@@ -117,6 +120,11 @@ public class HUDController : MonoBehaviour
         timing = false;
     }
 
+    public void ResumeTimer()
+    {
+        timing = true;
+    }
+
     public float GameTimeSeconds => gameTime;
 
     public void ShowGameOver()
@@ -143,6 +151,128 @@ public class HUDController : MonoBehaviour
         }
 
         StartCoroutine(LeaveAfterGameOver());
+    }
+
+    public void ShowContinueChoice(Action onLeave, Action onContinue)
+    {
+        timing = false;
+        EnsureCountdown();
+        EnsureContinueButtons(onLeave, onContinue);
+
+        if (exitButton != null)
+            exitButton.interactable = false;
+
+        if (countdownOverlay != null)
+        {
+            countdownOverlay.SetActive(true);
+            countdownOverlay.transform.SetAsLastSibling();
+        }
+
+        if (continueTitle != null)
+        {
+            continueTitle.gameObject.SetActive(true);
+            continueTitle.transform.SetAsLastSibling();
+        }
+
+        if (saveAndLeaveButton != null)
+        {
+            saveAndLeaveButton.gameObject.SetActive(true);
+            saveAndLeaveButton.transform.SetAsLastSibling();
+        }
+
+        if (continueButton != null)
+        {
+            continueButton.gameObject.SetActive(true);
+            continueButton.transform.SetAsLastSibling();
+        }
+    }
+
+    public void HideContinueChoice()
+    {
+        if (continueTitle != null)
+            continueTitle.gameObject.SetActive(false);
+        if (saveAndLeaveButton != null)
+            saveAndLeaveButton.gameObject.SetActive(false);
+        if (continueButton != null)
+            continueButton.gameObject.SetActive(false);
+        if (countdownOverlay != null)
+            countdownOverlay.SetActive(false);
+        if (exitButton != null)
+            exitButton.interactable = true;
+    }
+
+    public void SaveAndLeave()
+    {
+        HighScoreRecord.SaveIfBetter(highScoreId, score, gameTime);
+        SceneManager.LoadScene(startSceneName);
+    }
+
+    void EnsureContinueButtons(Action onLeave, Action onContinue)
+    {
+        if (continueTitle == null)
+        {
+            GameObject titleObject = new GameObject("ContinueTitle", typeof(RectTransform), typeof(CanvasRenderer), typeof(Text));
+            titleObject.transform.SetParent(transform, false);
+            RectTransform titleRect = titleObject.GetComponent<RectTransform>();
+            titleRect.anchorMin = new Vector2(0.5f, 0.5f);
+            titleRect.anchorMax = new Vector2(0.5f, 0.5f);
+            titleRect.pivot = new Vector2(0.5f, 0.5f);
+            titleRect.sizeDelta = new Vector2(900f, 140f);
+            titleRect.anchoredPosition = new Vector2(0f, 150f);
+            continueTitle = titleObject.GetComponent<Text>();
+            continueTitle.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            continueTitle.fontSize = 90;
+            continueTitle.fontStyle = FontStyle.Bold;
+            continueTitle.alignment = TextAnchor.MiddleCenter;
+            continueTitle.color = Color.white;
+            continueTitle.text = "CONTINUE?";
+            continueTitle.raycastTarget = false;
+        }
+
+        saveAndLeaveButton = EnsureChoiceButton(saveAndLeaveButton, "SaveAndLeave", "Save score and leave", new Vector2(0f, -10f), onLeave);
+        continueButton = EnsureChoiceButton(continueButton, "Continue", "Continue", new Vector2(0f, -120f), onContinue);
+    }
+
+    Button EnsureChoiceButton(Button existing, string name, string label, Vector2 position, Action onClick)
+    {
+        if (existing == null)
+        {
+            GameObject buttonObject = new GameObject(name, typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(Button));
+            buttonObject.transform.SetParent(transform, false);
+            RectTransform rect = buttonObject.GetComponent<RectTransform>();
+            rect.anchorMin = new Vector2(0.5f, 0.5f);
+            rect.anchorMax = new Vector2(0.5f, 0.5f);
+            rect.pivot = new Vector2(0.5f, 0.5f);
+            rect.sizeDelta = new Vector2(640f, 78f);
+            rect.anchoredPosition = position;
+
+            Image image = buttonObject.GetComponent<Image>();
+            image.sprite = WhiteSprite();
+            image.color = new Color(0.12f, 0.45f, 0.62f, 1f);
+
+            existing = buttonObject.GetComponent<Button>();
+            existing.targetGraphic = image;
+
+            GameObject labelObject = new GameObject("Label", typeof(RectTransform), typeof(CanvasRenderer), typeof(Text));
+            labelObject.transform.SetParent(buttonObject.transform, false);
+            RectTransform labelRect = labelObject.GetComponent<RectTransform>();
+            labelRect.anchorMin = Vector2.zero;
+            labelRect.anchorMax = Vector2.one;
+            labelRect.offsetMin = Vector2.zero;
+            labelRect.offsetMax = Vector2.zero;
+            Text text = labelObject.GetComponent<Text>();
+            text.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            text.fontSize = 36;
+            text.fontStyle = FontStyle.Bold;
+            text.alignment = TextAnchor.MiddleCenter;
+            text.color = Color.white;
+            text.text = label;
+            text.raycastTarget = false;
+        }
+
+        existing.onClick.RemoveAllListeners();
+        existing.onClick.AddListener(() => onClick());
+        return existing;
     }
 
     IEnumerator LeaveAfterGameOver()

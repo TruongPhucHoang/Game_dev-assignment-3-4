@@ -9,6 +9,7 @@ public class StartMenuController : MonoBehaviour
     [SerializeField] Button level1Button;
     [SerializeField] Button level2Button;
     [SerializeField] string mainSceneName = "level_1";
+    [SerializeField] string innovationSceneName = "InnovationScene";
 
     AudioSource clickAudio;
     AudioClip clickClip;
@@ -32,7 +33,7 @@ public class StartMenuController : MonoBehaviour
     void Start()
     {
         WireButton(level1Button, LoadLevel1);
-        WireButton(level2Button, null);
+        WireButton(level2Button, LoadLevel2);
         ShowRecord(level1Button, "Level1");
         ShowRecord(level2Button, "Level2");
     }
@@ -71,6 +72,11 @@ public class StartMenuController : MonoBehaviour
     void LoadLevel1()
     {
         SceneManager.LoadScene(mainSceneName);
+    }
+
+    void LoadLevel2()
+    {
+        SceneManager.LoadScene(innovationSceneName);
     }
 
     void OnRectTransformDimensionsChange()
