@@ -3,6 +3,7 @@ using UnityEngine;
 
 public class InnovationMap : LevelGenerator
 {
+    const float PowerPelletChance = 0.02f;
     protected override int[,] BuildFullMap(out int rows, out int cols)
     {
         int[,] map = base.BuildFullMap(out rows, out cols);
@@ -40,22 +41,54 @@ public class InnovationMap : LevelGenerator
         if (rows > 1 && cols > 2 && !locked[1, 2])
             map[1, 2] = 0;
 
-        for (int r = 0; r < rows; r++)
-        {
-            for (int c = 0; c < cols; c++)
-            {
-                if (!locked[r, c] && original[r, c] == 6)
-                    map[r, c] = 0;
-            }
-        }
-
+        KeepFormerPowerSpots(map, original, house, rows, cols);
         OpenPassages(map, locked, rows, cols);
         JoinFloors(map, locked, rows, cols);
         OpenPassages(map, locked, rows, cols);
         StyleWalls(map, locked, rows, cols);
-        PlacePellets(map, original, locked, rows, cols);
+        PlacePellets(map, locked, rows, cols);
         CloseOuterWall(map, rows, cols);
         FillOpenTiles(map, house, rows, cols);
+        RollPowerPellets(map, rows, cols);
+    }
+
+    static void KeepFormerPowerSpots(int[,] map, int[,] original, bool[,] house, int rows, int cols)
+    {
+        for (int r = 0; r < rows; r++)
+        {
+            for (int c = 0; c < cols; c++)
+            {
+                if (original[r, c] != 6 || house[r, c] || IsTunnelApproach(r, c, rows, cols))
+                    continue;
+                if (r == 0 || r == rows - 1 || c == 0 || c == cols - 1)
+                    continue;
+                if ((c == 1 || c == cols - 2) && r != rows / 2)
+                    continue;
+
+                map[r, c] = 0;
+            }
+        }
+    }
+
+    static void RollPowerPellets(int[,] map, int rows, int cols)
+    {
+        for (int r = 0; r < rows; r++)
+        {
+            for (int c = 0; c < cols; c++)
+            {
+                if (map[r, c] == 6)
+                    map[r, c] = 5;
+            }
+        }
+
+        for (int r = 0; r < rows; r++)
+        {
+            for (int c = 0; c < cols; c++)
+            {
+                if (map[r, c] == 5 && Random.value < PowerPelletChance)
+                    map[r, c] = 6;
+            }
+        }
     }
 
     static void FillOpenTiles(int[,] map, bool[,] house, int rows, int cols)
@@ -511,7 +544,7 @@ public class InnovationMap : LevelGenerator
         return reached;
     }
 
-    static void PlacePellets(int[,] map, int[,] original, bool[,] locked, int rows, int cols)
+    static void PlacePellets(int[,] map, bool[,] locked, int rows, int cols)
     {
         for (int r = 0; r < rows; r++)
         {
@@ -520,7 +553,7 @@ public class InnovationMap : LevelGenerator
                 if (locked[r, c] || !IsFloor(map[r, c]))
                     continue;
 
-                map[r, c] = original[r, c] == 6 ? 6 : 5;
+                map[r, c] = 5;
             }
         }
     }
